@@ -10,8 +10,28 @@
 </head>
 <body class="loading">
 
-<div th:replace="fragments/navbar :: navbar(title='Home')"></div>
-<div th:replace="fragments/search_bar :: search_bar"></div>
+<h1 class="home-title" >Home</h1>
+<div class = "blue-div">
+    <ul>
+        <li><a id="home" class="active">Home</a></li>
+        <li><a>Cart</a></li>
+        <li><a>Orders</a></li>
+        <li style="float:right"><a id="user-data"></a></li>
+        <li style="float:right"><a id="logout">Logout</a></li>
+    </ul>
+
+</div>
+
+<div class="blue-div search-div" >
+    <form class="search-form">
+        <div class="form-group">
+            <label for="hint">Search</label>
+            <input id="hint" type="text" name="hint" required/>
+        </div>
+        <button id="search" class="btn btn-large btn-blue btn-primary">Go</button>
+    </form>
+</div>
+
 
 <div class="article-div blue-div">
     <div class="article-title">Here there are your last interesting articles</div>
