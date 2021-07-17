@@ -67,6 +67,12 @@ public class GenericServlet extends HttpServlet {
 
     }
 
+    protected void sendVoidResponse(HttpServletResponse response) {
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+    }
+
     protected void writeObject(Object o, HttpServletResponse response) throws IOException {
 
         String json = new Gson().toJson(o);

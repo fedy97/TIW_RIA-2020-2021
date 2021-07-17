@@ -67,7 +67,7 @@ public class LoginController extends GenericServlet {
                 ServletContext servletContext = getServletContext();
                 final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
                 ctx.setVariable("errorMsg", "Incorrect username or password");
-                templateEngine.process(LOGIN_PAGE_PATH, ctx, response.getWriter());
+//                templateEngine.process(LOGIN_PAGE_PATH, ctx, response.getWriter());
             } else {
                 request.getSession().setAttribute(USER_SESSION_ATTRIBUTE, user.get());
                 response.sendRedirect(getServletContext().getContextPath() + HOME_PAGE_PATH);

@@ -94,10 +94,7 @@ public class SearchController extends GenericServlet {
                 addArticleDetails(articleId, ctx, req.getSession());
             }
 
-            ctx.setVariable(RESULT_CONTEXT_VAR, foundArticles);
-            ctx.setVariable(HINT_CONTEXT_VAR, keyword);
-
-            templateEngine.process(RESULTS_PAGE_PATH, ctx, resp.getWriter());
+            writeObject(foundArticles, resp);
         } catch (Exception e) {
             log.error("Something went wrong when extracting article by keyword {}. Cause is {}", keyword,
                     ExceptionUtils.getStackTrace(e));

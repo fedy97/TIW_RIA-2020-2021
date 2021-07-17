@@ -54,7 +54,7 @@ public class CartController extends GenericServlet {
             printCart(sellerOrders);
             ctx.setVariable(CART_CONTEXT_VAR, sellerOrders);
             req.getSession().setAttribute(TMP_ORDERS_SESSION_VAR, sellerOrders);
-            templateEngine.process(CART_PAGE_PATH, ctx, resp.getWriter());
+//            templateEngine.process(CART_PAGE_PATH, ctx, resp.getWriter());
         } catch (Exception e) {
             log.error("Something went wrong when creating cart. Cause is {}", ExceptionUtils.getStackTrace(e));
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,

@@ -76,14 +76,14 @@ public class OrderController extends GenericServlet {
                 ServletContext servletContext = getServletContext();
                 final WebContext ctx = new WebContext(req, resp, servletContext, req.getLocale());
                 ctx.setVariable(ORDERS_CONTEXT_VAR, foundOrder.get(0));
-                templateEngine.process(RESULTS_PAGE_PATH, ctx, resp.getWriter());
+//                templateEngine.process(RESULTS_PAGE_PATH, ctx, resp.getWriter());
             } else {
                 // get orders
                 List<OrderBean> foundOrders = getOrders(userId);
                 ServletContext servletContext = getServletContext();
                 final WebContext ctx = new WebContext(req, resp, servletContext, req.getLocale());
                 ctx.setVariable(ORDERS_CONTEXT_VAR, foundOrders);
-                templateEngine.process(RESULTS_PAGE_PATH, ctx, resp.getWriter());
+//                templateEngine.process(RESULTS_PAGE_PATH, ctx, resp.getWriter());
             }
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
