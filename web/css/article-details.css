@@ -1,0 +1,13 @@
+
+.add-article-form{
+    max-width: 20%;
+    float: right;
+    position:absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.add-article-form > .form-group{
+    margin-bottom: 1rem;
+}
+

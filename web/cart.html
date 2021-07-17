@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="css/global.css" th:href="@{/css/global.css}"/>
+    <link rel="stylesheet" type="text/css" href="css/search-bar.css" th:href="@{/css/search-bar.css}"/>
+</head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="article-div blue-div">
+    <div class="article-title" th:if="!${tmp_orders.isEmpty()}">Here you can find your cart articles</div>
+    <div class="article-title" th:if="${tmp_orders.isEmpty()}">No articles in your cart yet. Go shopping!</div>
+
+    <div class="item item-blue" th:each="seller_article : ${tmp_orders}">
+        <div class="item-title" th:text="${seller_article.getValue().getSellerName()}">Fornitore</div>
+
+        <!--            <div class="item item-blue" >-->
+        <div class="item-data" th:each="article : ${seller_article.getValue().getArticleBeans()}">
+            <div><b> Article: </b><span th:text="${article.getName()}"></span></div>
+            <div><b> Price: </b><span th:text="${article.getPrice()}"></span><span>&#8364;</span></div>
+            <div><b> Qty: </b><span th:text="${article.getQuantity()}"></span></div>
+<!--            <div> Free shipping for orders greater than <b>-->
+<!--                th:text="${seller_offer.getPriceThreshold()}"></b><b>&#8364;</b></div>-->
+            <hr>
+        </div>
+
+        <div class="item-data">
+            <div><b>Articles cost: </b><span th:text="${seller_article.getValue().getPriceArticles()}"></span><span>&#8364;</span></div>
+            <div><b>Shipping cost: </b><span th:text="${seller_article.getValue().getPriceShipment()}"></span><span>&#8364;</span></div>
+        </div>
+        <br>
+        <form class="order-form" action="#" th:action="@{/order}" method="POST">
+            <input type="hidden" name="seller_id" th:value="${seller_article.getKey()}" required/>
+            <button class="btn btn-large btn-blue btn-primary" type="submit">Order</button>
+        </form>
+    </div>
+
+</div>
+<!--</div>-->
+
+
+</body>
+</html>

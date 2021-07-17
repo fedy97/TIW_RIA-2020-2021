@@ -1,0 +1,16 @@
+
+[X]  creazione Bean applicativi (User, Articolo, Ordine, Fornitore etc...)
+
+
+[X]  Creazione base dati (script sql) --> Fede
+
+[X]  POST servizio autenticazione /login  --> Raul
+[X]  GET servizio che restituisce lista degli ultimi cinque prodotti visualizzati dall’utente / prodotti in offerta --> Raul
+[X]  GET servizio di ricerca --> Raul
+     --> input keyword
+     --> output lista articoli
+[]  GET /article/article-id (restituisce dettagli articolo, inclusa lista fornitori, con id specifico e flag visualizzato) TDB --> Fede
+[]  POST Salvataggio articoli carrello (gestito da thymeleaf) --> Raul
+[]  POST servizio creazione ordine --> Fede
+[x]  GET /orders (restituisce dettagli ordini per data decrescente degli ordini con tutti i dati associati)--> Fede
+[x]  GET /order/order-id --> Fede

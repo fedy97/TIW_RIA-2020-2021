@@ -1,0 +1,19 @@
+
+.search-div{
+    margin-top: 20px;
+    position: relative;
+}
+
+.search-form > .form-group{
+    max-width: 79%;
+    margin-bottom: 0;
+}
+
+.search-div  .btn-primary {
+    padding: .5rem 2rem;
+    width: 20%;
+    position: absolute;
+    top: 1rem;
+    margin-right: 5px;
+    right: 1rem;
+}

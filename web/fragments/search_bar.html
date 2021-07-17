@@ -1,0 +1,9 @@
+<div xmlns:th="http://www.w3.org/1999/xhtml" class="blue-div search-div"  th:fragment="search_bar">
+    <form class="search-form" th:action="@{/search}" method="GET">
+        <div class="form-group">
+            <label for="hint">Search</label>
+            <input id="hint" type="text" name="hint" required/>
+        </div>
+        <button class="btn btn-large btn-blue btn-primary" type="submit">Go</button>
+    </form>
+</div>
