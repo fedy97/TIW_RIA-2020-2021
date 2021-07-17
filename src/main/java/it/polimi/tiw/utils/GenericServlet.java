@@ -1,20 +1,19 @@
 
 package it.polimi.tiw.utils;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Optional;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
+import com.google.gson.Gson;
 
 import it.polimi.tiw.bean.UserBean;
 
@@ -26,7 +25,7 @@ public class GenericServlet extends HttpServlet {
     protected static final String CART_PAGE_PATH         = "/cart.html";
 
     protected static final String CART_CONTROLLER_PATH   = "/cart";
-    protected static final String ORDER_CONTROLLER_PATH = "/order";
+    protected static final String ORDER_CONTROLLER_PATH  = "/order";
 
     protected static final String CART_SESSION_VAR       = "cart";
     protected static final String TMP_ORDERS_SESSION_VAR = "tmp_orders";
@@ -35,7 +34,6 @@ public class GenericServlet extends HttpServlet {
 
     private static final long     serialVersionUID       = 1L;
     protected Connection          connection             = null;
-    protected TemplateEngine      templateEngine;
 
     protected GenericServlet() {
 
@@ -47,12 +45,7 @@ public class GenericServlet extends HttpServlet {
 
         super.init(servletConfig);
         connection = ConnectionHandler.getConnection(getServletContext());
-        ServletContext servletContext = getServletContext();
-        ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
-        templateResolver.setTemplateMode(TemplateMode.HTML);
-        this.templateEngine = new TemplateEngine();
-        this.templateEngine.setTemplateResolver(templateResolver);
-        templateResolver.setSuffix(".html");
+
     }
 
     @Override
@@ -72,6 +65,14 @@ public class GenericServlet extends HttpServlet {
         else
             return Optional.of((UserBean) session.getAttribute(USER_SESSION_ATTRIBUTE));
 
+    }
+
+    protected void writeObject(Object o, HttpServletResponse response) throws IOException {
+
+        String json = new Gson().toJson(o);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(json);
     }
 
 }
