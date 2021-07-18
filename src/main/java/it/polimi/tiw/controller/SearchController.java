@@ -94,7 +94,7 @@ public class SearchController extends GenericServlet {
                 addArticleDetails(articleId, ctx, req.getSession());
             }
 
-            writeObject(foundArticles, resp);
+            writeObject(foundArticles, resp, HttpServletResponse.SC_OK);
         } catch (Exception e) {
             log.error("Something went wrong when extracting article by keyword {}. Cause is {}", keyword,
                     ExceptionUtils.getStackTrace(e));

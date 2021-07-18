@@ -62,11 +62,11 @@ public class LoginController extends GenericServlet {
         try {
             Optional<UserBean> user = getUserEntity(usrn, pwd);
             if (!user.isPresent()) {
-                writeObject("user not found or incorrect", response);
+                writeObject("user not found or incorrect", response, HttpServletResponse.SC_UNAUTHORIZED);
             } else {
                 request.getSession().setAttribute(USER_SESSION_ATTRIBUTE, user.get());
                 //response.sendRedirect(getServletContext().getContextPath() + HOME_PAGE_PATH);
-                writeObject(user.get(), response);
+                writeObject(user.get(), response, HttpServletResponse.SC_OK);
             }
         } catch (SQLException e) {
             log.error("Something went wrong when extracting user data. Cause is {}", e.getMessage());

@@ -52,7 +52,7 @@ public class HomeController extends GenericServlet {
                 lastViewedArticles.addAll(lastArticles);
             }
 
-            writeObject(lastViewedArticles, resp);
+            writeObject(lastViewedArticles, resp, HttpServletResponse.SC_OK);
         } catch (Exception e) {
             log.error("Something went wrong when extracting last articles. Cause is {}", e.getMessage());
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
