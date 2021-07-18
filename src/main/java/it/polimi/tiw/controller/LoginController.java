@@ -1,36 +1,34 @@
 
 package it.polimi.tiw.controller;
 
+import it.polimi.tiw.bean.UserBean;
+import it.polimi.tiw.dao.UserDAO;
+import it.polimi.tiw.utils.GenericServlet;
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletContext;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.thymeleaf.context.WebContext;
-
-import it.polimi.tiw.bean.UserBean;
-import it.polimi.tiw.dao.UserDAO;
-import it.polimi.tiw.utils.GenericServlet;
-
 @WebServlet("/login")
+@MultipartConfig
 public class LoginController extends GenericServlet {
 
-    private static final Logger log              = LoggerFactory.getLogger(LoginController.class.getSimpleName());
+    private static final Logger log = LoggerFactory.getLogger(LoginController.class.getSimpleName());
 
-    private static final String USER_PARAM       = "username";
-    private static final String PWD_PARAM        = "pwd";
+    private static final String USER_PARAM = "username";
+    private static final String PWD_PARAM = "pwd";
 
-    private static final long   serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public LoginController() {
 
@@ -49,7 +47,7 @@ public class LoginController extends GenericServlet {
             if (StringUtils.isBlank(usrn) || StringUtils.isBlank(pwd)) {
                 throw new Exception("Missing or empty credential value");
             }
-            String regex = "^(.+)@(.+)$";
+            String regex = "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(usrn);
             if (!matcher.matches())
@@ -64,13 +62,11 @@ public class LoginController extends GenericServlet {
         try {
             Optional<UserBean> user = getUserEntity(usrn, pwd);
             if (!user.isPresent()) {
-                ServletContext servletContext = getServletContext();
-                final WebContext ctx = new WebContext(request, response, servletContext, request.getLocale());
-                ctx.setVariable("errorMsg", "Incorrect username or password");
-//                templateEngine.process(LOGIN_PAGE_PATH, ctx, response.getWriter());
+                writeObject("user not found or incorrect", response);
             } else {
-                request.getSession().setAttribute(USER_SESSION_ATTRIBUTE, user.get());
-                response.sendRedirect(getServletContext().getContextPath() + HOME_PAGE_PATH);
+                //request.getSession().setAttribute(USER_SESSION_ATTRIBUTE, user.get());
+                //response.sendRedirect(getServletContext().getContextPath() + HOME_PAGE_PATH);
+                writeObject(user.get(), response);
             }
         } catch (SQLException e) {
             log.error("Something went wrong when extracting user data. Cause is {}", e.getMessage());

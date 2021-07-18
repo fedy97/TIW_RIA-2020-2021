@@ -12,3 +12,9 @@ body{
     line-height: 2rem;
     margin-bottom: 1rem;
 }
+
+.warning-message{
+    color: #e74a3b;
+    display: none;
+    margin-top: 1rem;
+}

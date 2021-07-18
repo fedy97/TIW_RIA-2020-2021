@@ -5,27 +5,26 @@
     //Link graphics
     var login_button = document.getElementById("login_button");
     var login_warning_div = document.getElementById('login_warning_id');
-    var password_input = register_button.closest("form").querySelector('input[name="password"]');
-    var repeat_password_input = register_button.closest("form").querySelector('input[name="passwordConfirm"]');
-    var register_warning_div = document.getElementById('register_warning_id');
 
     //Attach to login button
     login_button.addEventListener("click", (e) => {
-        var form = e.target.closest("form"); 
+        var form = e.target.closest("form");
         login_warning_div.style.display = 'none';
         if (form.checkValidity()) { //Do form check
-            sendToServer(form, login_warning_div, 'Login');
-        }else 
+            sendToServer(form, login_warning_div, 'login');
+        }else
             form.reportValidity(); //If not valid, notify
     });
 
     function sendToServer(form, error_div, request_url){
         makeCall("POST", request_url, form, function(resp){
+            console.log(resp.status);
             switch(resp.status){ //Get status code
                 case 200: //Okay
                     var data = JSON.parse(resp.responseText);
+                    console.log(data);
                     sessionStorage.setItem('id', data.id);
-                    sessionStorage.setItem('name', data.name);
+                    sessionStorage.setItem('email', data.email);
                     window.location.href = "home.html";
                     break;
                 case 400: // bad request

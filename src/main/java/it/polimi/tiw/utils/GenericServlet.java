@@ -1,10 +1,8 @@
 
 package it.polimi.tiw.utils;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Optional;
+import com.google.gson.Gson;
+import it.polimi.tiw.bean.UserBean;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -12,28 +10,29 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Optional;
 
-import com.google.gson.Gson;
-
-import it.polimi.tiw.bean.UserBean;
 
 public class GenericServlet extends HttpServlet {
 
     protected static final String USER_SESSION_ATTRIBUTE = "user";
-    protected static final String LOGIN_PAGE_PATH        = "/login.html";
-    protected static final String HOME_PAGE_PATH         = "/home";
-    protected static final String CART_PAGE_PATH         = "/cart.html";
+    protected static final String LOGIN_PAGE_PATH = "/login.html";
+    protected static final String HOME_PAGE_PATH = "/home";
+    protected static final String CART_PAGE_PATH = "/cart.html";
 
-    protected static final String CART_CONTROLLER_PATH   = "/cart";
-    protected static final String ORDER_CONTROLLER_PATH  = "/order";
+    protected static final String CART_CONTROLLER_PATH = "/cart";
+    protected static final String ORDER_CONTROLLER_PATH = "/order";
 
-    protected static final String CART_SESSION_VAR       = "cart";
+    protected static final String CART_SESSION_VAR = "cart";
     protected static final String TMP_ORDERS_SESSION_VAR = "tmp_orders";
 
-    protected static final String CART_CONTEXT_VAR       = "tmp_orders";
+    protected static final String CART_CONTEXT_VAR = "tmp_orders";
 
-    private static final long     serialVersionUID       = 1L;
-    protected Connection          connection             = null;
+    private static final long serialVersionUID = 1L;
+    protected Connection connection = null;
 
     protected GenericServlet() {
 
@@ -76,9 +75,10 @@ public class GenericServlet extends HttpServlet {
     protected void writeObject(Object o, HttpServletResponse response) throws IOException {
 
         String json = new Gson().toJson(o);
+        response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(json);
+        response.getWriter().println(json);
     }
 
 }
