@@ -148,12 +148,7 @@ function relPathToAbs(relative) {
     return stack.join("/"); //Join everything
 }
 
-/**
- * Utils for arrays
- * -------------
- * Description: Adding a modified version of standard include,
- *              with automatic cast during comparison.
- */
+
 Array.prototype.contains = function(element){
     for(let i = 0;i<this.length;i++)
         if (this[i] == element)
