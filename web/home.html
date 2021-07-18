@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <meta charset="ISO-8859-1">
-    <title>Home</title>
     <link rel="stylesheet" type="text/css" href="css/global.css"/>
     <link rel="stylesheet" type="text/css" href="css/home.css"/>
     <link rel="stylesheet" type="text/css" href="css/search-bar.css"/>
     <link rel="stylesheet" type="text/css" href="css/navbar.css"/>
-    <script type="text/javascript" src="js/utils.js"></script>
-    <script type="text/javascript" src="js/ecommerce.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/loading.css"/>
+    <script src="js/utils.js" charset="utf-8" defer></script>
+    <script src="js/ecommerce.js" charset="utf-8" defer></script>
 </head>
 <body class="loading">
 
-<h1 class="home-title" >Home</h1>
-<div class = "blue-div">
+<h1 class="home-title">Home</h1>
+<div class="blue-div">
     <ul>
         <li><a id="home" class="active">Home</a></li>
         <li><a>Cart</a></li>
@@ -24,30 +24,23 @@
 
 </div>
 
-<div class="blue-div search-div" >
-    <form class="search-form">
+<div class="blue-div search-div">
+    <form class="search-form" action="#">
         <div class="form-group">
             <label for="hint">Search</label>
-            <input id="hint" type="text" name="hint" required/>
+            <input type="text" name="hint" required>
         </div>
-        <button id="search" class="btn btn-large btn-blue btn-primary">Go</button>
+        <input id="search" type="button" value="Go" class="btn btn-large btn-blue btn-primary"/>
     </form>
 </div>
 
-<div id="loading_msg" class="article-div blue-div"></div>
-
 <div id="last-articles" class="article-div blue-div">
-    <div class="article-title">Here there are your last interesting articles</div>
-    <div class="item item-blue">
-        <div class="item-title">Spray magico</div>
-<!--        <img th:src="${article.getPhoto()}">-->
-        <div class="item-data">
-            <div><b>Description: </b><span>It is a fantastic product</span></div>
-            <div><b>Category: </b><span>Home</span></div>
-        </div>
-        <a class="btn btn-blue btn-small btn-primary">See
-            details</a>
-    </div>
+</div>
+
+<div class="loading-div">
+    <img class="loading-img"
+         src="https://bestanimations.com/media/loading-gears/1895404887loading-gears-animation-10-2.gif"/>
+    <div id="loading_msg" class="loading-message">Please wait...</div>
 </div>
 </body>
 </html>

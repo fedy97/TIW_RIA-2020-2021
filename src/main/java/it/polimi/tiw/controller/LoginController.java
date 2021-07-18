@@ -3,6 +3,7 @@ package it.polimi.tiw.controller;
 
 import it.polimi.tiw.bean.UserBean;
 import it.polimi.tiw.dao.UserDAO;
+import it.polimi.tiw.model.UserModel;
 import it.polimi.tiw.utils.GenericServlet;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +56,8 @@ public class LoginController extends GenericServlet {
 
         } catch (Exception e) {
             log.error("Something went wrong when extracting login form parameters. Cause is {}", e.getMessage());
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println(e.getMessage());
             return;
         }
 
@@ -65,12 +67,12 @@ public class LoginController extends GenericServlet {
                 writeObject("user not found or incorrect", response, HttpServletResponse.SC_UNAUTHORIZED);
             } else {
                 request.getSession().setAttribute(USER_SESSION_ATTRIBUTE, user.get());
-                //response.sendRedirect(getServletContext().getContextPath() + HOME_PAGE_PATH);
-                writeObject(user.get(), response, HttpServletResponse.SC_OK);
+                writeObject(new UserModel(user.get()), response, HttpServletResponse.SC_OK);
             }
         } catch (SQLException e) {
             log.error("Something went wrong when extracting user data. Cause is {}", e.getMessage());
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not Possible to check credentials");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().println("Login is currently not possible. We apologize");
         }
     }
 

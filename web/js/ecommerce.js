@@ -3,9 +3,9 @@
  */
 (function () {
     //Vars
-    var userInfo, articleList;
+    let userInfo, articleList, searchComponent;
 
-    var pageOrchestrator = new PageOrchestrator();
+    let pageOrchestrator = new PageOrchestrator();
 
     window.addEventListener("load", () => {
         pageOrchestrator.start(); // initialize the components
@@ -25,6 +25,8 @@
             articleList = new ArticleList(
                 document.getElementById("last-articles")
             );
+
+            searchComponent = new Search(document.getElementById("search"), articleList);
 
             //     sellerOfferList = new TransferList(
             //         document.getElementById("account-details"),
@@ -54,7 +56,7 @@
             this.refresh = function () {
                 //Refresh view
                 // userInfo.show();
-                articleList.show();
+                articleList.show('home');
             };
         }
 
@@ -75,6 +77,24 @@
             });
         }
 
+        function Search(_search_button, _article_list_component) {
+            let self = this;
+            this.search_button = _search_button;
+            this.article_list_component = _article_list_component;
+
+            this.search_button.addEventListener("click", (e) => {
+
+                let search_form = e.target.closest("form");
+                if (search_form.checkValidity()) {
+                    let hint = search_form.querySelector("input[name='hint']");
+                    self.article_list_component.show('search?hint=' + hint.value);
+                } else {
+                    search_form.reportValidity();
+                }
+            })
+
+        }
+
 
         function ArticleList(
             _article_div) {
@@ -82,10 +102,9 @@
             let self = this;
             this.article_list = _article_div;
 
-            this.show = function () {
-                let self = this;
+            this.show = function (source) {
                 //Request and update with the results
-                makeCall("GET", 'home', null, (resp) => {
+                makeCall("GET", source, null, (resp) => {
                     switch (resp.status) {
                         case 200: //ok
                             let articles = JSON.parse(resp.responseText);
@@ -119,7 +138,7 @@
                         self.article_list.textContent = "No items";
                         self.article_list.style.display = "block";
                     } else {
-                        let item, item_title, item_data, div1, div2, b1, b2, details_button;
+                        let item, item_title, item_data, img, div1, div2, b1, b2, details_button;
                         _articles.forEach((art) => {
                             item = document.createElement("div");
                             item.className = "item item-blue";
@@ -127,6 +146,10 @@
                             item_title.className = "item-title";
                             item_title.textContent = art.name;
                             item.appendChild(item_title);
+
+                            img = document.createElement("img");
+                            img.setAttribute("src", art.photo);
+                            item.appendChild(img);
 
                             item_data = document.createElement("div");
                             item_data.className = "item-data";
@@ -145,6 +168,8 @@
                             div2.appendChild(b2);
                             div2.appendChild(document.createTextNode(art.description));
                             item_data.appendChild(div2);
+
+                            item.appendChild(item_data);
 
                             details_button = document.createElement("a");
                             details_button.className = "btn btn-blue btn-small btn-primary";
@@ -167,7 +192,7 @@
                                 //     transferList.hide();
                                 // }
                             });
-                            item_data.appendChild(details_button);
+                            item.appendChild(details_button);
 
                             self.article_list.appendChild(item);
                         });
