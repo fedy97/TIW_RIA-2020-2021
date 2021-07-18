@@ -132,14 +132,7 @@ function checkRedirect(requestURL, responseURL){
     return false;
 }
 
-/**
- * Relative/Absolute path
- * -------------
- * Description: Returns absolute path from relative
- *              (see https://stackoverflow.com/questions/14780350/convert-relative-path-to-absolute-using-javascript)
- *
- * @param {*} relative Relative path for the request
- */
+
 function relPathToAbs(relative) {
     var stack = window.location.href.split("/"),
         parts = relative.split("/");
