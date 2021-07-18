@@ -117,25 +117,7 @@ function makeCall(method, relativeUrl, form, done_callback, reset = true) {
     }
 }
 
-/**
- * Check if an AJAX call has been redirected.
- * This means that auth is no longer valid.
- * @param {*} requestURL Request relative url of the call
- * @param {*} responseURL Response url after eventual redirects
- *
- * Notes:
- * - It's not possible to detect a redirect using response status code, as
- *   if a request is made to the same origin, or the server has CORS enabled,
- *   the 3XX response is followed transparently by XMLHttpRequest.
- *   This default behaviour is not overridable.
- *   (see https://xhr.spec.whatwg.org/#dom-xmlhttprequest-readystate)
- *
- * - The value of req.responseURL will be the final URL obtained after any redirects.
- *   (see https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseURL)
- *
- * - As pointed out here https://stackoverflow.com/questions/8056277/how-to-get-response-url-in-xmlhttprequest,
- *   req.responseURL could be empty when CORS request is blocked, or redirection loop is detected.
- */
+
 function checkRedirect(requestURL, responseURL){
     if (responseURL){
         let actualRequestURL = relPathToAbs(requestURL);
