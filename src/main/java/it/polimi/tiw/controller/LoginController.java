@@ -64,7 +64,7 @@ public class LoginController extends GenericServlet {
             if (!user.isPresent()) {
                 writeObject("user not found or incorrect", response);
             } else {
-                //request.getSession().setAttribute(USER_SESSION_ATTRIBUTE, user.get());
+                request.getSession().setAttribute(USER_SESSION_ATTRIBUTE, user.get());
                 //response.sendRedirect(getServletContext().getContextPath() + HOME_PAGE_PATH);
                 writeObject(user.get(), response);
             }
