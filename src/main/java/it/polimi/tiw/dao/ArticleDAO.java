@@ -51,7 +51,8 @@ public class ArticleDAO {
 
     public List<ArticleBean> findLastArticles(Integer articlesNumber) throws SQLException {
 
-        String query = "SELECT DISTINCT article.*, MIN(price) as price FROM article a INNER JOIN seller_article ON article.id = seller_article.article_id WHERE a.category='Accessori auto' GROUP BY a.id, a.name, a.description, a.category, a.photo, a.insr_ts LIMIT " + articlesNumber;
+        String query = "SELECT DISTINCT article.*, MIN(price) as price FROM article INNER JOIN seller_article ON article.id = seller_article.article_id WHERE article.category='Accessori auto' " +
+                "GROUP BY article.id, article.name, article.description, article.category, article.photo, article.insr_ts LIMIT " + articlesNumber;
         return queryExecutor.select(query, new HashMap<>(), ArticleBean.class);
     }
 
