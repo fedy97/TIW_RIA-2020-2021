@@ -21,10 +21,7 @@
             console.log(resp.status);
             switch(resp.status){ //Get status code
                 case 200: //Okay
-                    let data = JSON.parse(resp.responseText);
-                    console.log(data);
-                    sessionStorage.setItem('id', data.id);
-                    sessionStorage.setItem('email', data.email);
+                    sessionStorage.setItem('username', resp.responseText);
                     window.location.href = "home.html";
                     break;
                 case 400: // bad request

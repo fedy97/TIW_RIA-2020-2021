@@ -16,6 +16,7 @@
         this.start = function () {
             //Init components
             menu = new Menu(
+                sessionStorage.getItem("username"),
                 document.getElementById("user-data"),
                 document.getElementById("home_a"),
                 document.getElementById("cart_a"),
@@ -65,10 +66,11 @@
             };
         }
 
-        function Menu(_user_item, _home, _cart, _order,
+        function Menu(_user, _user_item, _home, _cart, _order,
                       _logout_button) {
 
             let self = this;
+            this.user = _user;
             this.cart = _cart;
             this.home = _home;
             this.order = _order;
@@ -76,7 +78,7 @@
             this.logout_button = _logout_button;
 
             this.show = function () {
-                self.user_item.textContent = sessionStorage.getItem('mail');
+                self.user_item.textContent = JSON.parse(this.user).email;
             }
 
             this.home.addEventListener("click", e => {
