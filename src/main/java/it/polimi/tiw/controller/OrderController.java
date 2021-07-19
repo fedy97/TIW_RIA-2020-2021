@@ -46,9 +46,10 @@ public class OrderController extends GenericServlet {
 
         Optional<UserBean> user = getUserData(req);
         if (!user.isPresent()) {
-            resp.sendRedirect(getServletContext().getContextPath() + LOGIN_PAGE_PATH);
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
+
 
         String userId = user.get().getId();
 

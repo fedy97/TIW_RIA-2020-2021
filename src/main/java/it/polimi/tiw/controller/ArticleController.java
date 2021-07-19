@@ -53,9 +53,9 @@ public class ArticleController extends GenericServlet {
 //    @Override
 //    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 //
-//        Optional<UserBean> user = getUserData(req);
+//           Optional<UserBean> user = getUserData(req);
 //        if (!user.isPresent()) {
-//            resp.sendRedirect(getServletContext().getContextPath() + LOGIN_PAGE_PATH);
+//            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 //            return;
 //        }
 //
