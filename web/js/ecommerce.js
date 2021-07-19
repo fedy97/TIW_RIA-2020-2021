@@ -115,6 +115,8 @@
             this.order_table = _order_table;
 
             this.show = function () {
+                let title = document.getElementById("home_title");
+                title.textContent = "Orders";
                 //Request and update with the results
                 makeCall("GET", 'order', null, (resp) => {
                     switch (resp.status) {
@@ -240,6 +242,8 @@
             this.article_list = _article_div;
 
             this.show = function (source) {
+                let title = document.getElementById("home_title");
+                title.textContent = "Home";
                 //Request and update with the results
                 makeCall("GET", source, null, (resp) => {
                     switch (resp.status) {
