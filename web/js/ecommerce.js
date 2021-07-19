@@ -40,6 +40,7 @@
                 //Refresh view
                 menu.show();
                 articleList.show('home');
+                orderList.hide();
             };
         }
 
@@ -179,11 +180,11 @@
                         let td1 = document.createElement("td");
                         td1.textContent = order.sellerName;
                         let td2 = document.createElement("td");
-                        td2.textContent = order.priceArticles;
+                        td2.textContent = order.priceArticles + " €";
                         let td3 = document.createElement("td");
-                        td3.textContent = order.priceShipment;
+                        td3.textContent = order.priceShipment + " €";
                         let td4 = document.createElement("td");
-                        td4.textContent = order.priceTotal;
+                        td4.textContent = order.priceTotal + " €";
                         let td5 = document.createElement("td");
                         td5.textContent = order.orderDate;
                         let td6 = document.createElement("td");
@@ -214,7 +215,7 @@
                             let td9 = document.createElement("td");
                             td9.textContent = articles[i].quantity;
                             let td10 = document.createElement("td");
-                            td10.textContent = articles[i].price;
+                            td10.textContent = articles[i].price + " €";
                             table.appendChild(tr3);
                             tr3.appendChild(td8);
                             tr3.appendChild(td9);
