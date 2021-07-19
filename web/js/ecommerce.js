@@ -34,31 +34,8 @@
                 document.getElementById("search_div")
             );
 
-            //     sellerOfferList = new TransferList(
-            //         document.getElementById("account-details"),
-            //         document.getElementById("account-name"),
-            //         document.getElementById("account-code"),
-            //         document.getElementById("account-balance"),
-            //         document.getElementById("create-transfer-form"),
-            //         document.getElementById("transfer-form-button"),
-            //         document.getElementById("create-transfer-button"),
-            //         document.getElementById("transfers"),
-            //         document.getElementById("transfers-message")
-            //     );
-            //
-            //     addressBook = new AddressBook(
-            //         document.getElementById("add-contact"),
-            //         document.getElementById("dest-owner-code"),
-            //         document.getElementById("dest-account-code"),
-            //         document.getElementById("add-contact-warning"),
-            //         document.getElementById("add-contact-status-loading"),
-            //         document.getElementById("add-contact-status-ok"),
-            //         document.getElementById("add-contact-status-ko"),
-            //         document.getElementById("create-transfer-warning"),
-            //         document.getElementById("dest-ids-datalist"),
-            //         document.getElementById("dest-accounts-datalist")
-            //     );
-            // };
+            orderList = new OrderList(document.getElementById("order_table"));
+
             this.refresh = function () {
                 //Refresh view
                 menu.show();
@@ -83,6 +60,7 @@
 
             this.home.addEventListener("click", e => {
                 //TODO hide all other components
+                orderList.hide();
                 articleList.show('home');
                 searchComponent.show();
             });
@@ -96,7 +74,7 @@
             this.order.addEventListener("click", e => {
                 articleList.hide();
                 searchComponent.hide();
-                cartComponent.hide();
+                //cartComponent.hide();
                 orderList.show();
             });
 
@@ -128,6 +106,130 @@
 
             this.hide = function () {
                 self.search_component.style.display = "none";
+            }
+        }
+
+        function OrderList(
+            _order_table) {
+            console.log(_order_table);
+            let self = this;
+            this.order_table = _order_table;
+
+            this.show = function () {
+                //Request and update with the results
+                makeCall("GET", 'order', null, (resp) => {
+                    switch (resp.status) {
+                        case 200: //ok
+                            let orders = JSON.parse(resp.responseText);
+                            self.update(orders);
+                            break;
+                        case 400: // bad request
+                        case 401: // unauthorized
+                        case 500: // server error
+                            self.update(null, resp.responseText);
+                            break;
+                        default: //Error
+                            self.update(null, "Request reported status " + resp.status);
+                            break;
+                    }
+                });
+            };
+
+            this.update = function (_orders) {
+
+                self.order_table.style.display = "none";
+                self.order_table.innerHTML = "";
+
+                if (_orders.length === 0) {
+                    self.order_table.textContent = "No orders yet";
+                    self.order_table.style.display = "block";
+                } else {
+                    _orders.forEach((order) => {
+                        let table = document.createElement("table");
+                        table.className = "blue-div";
+                        let thead = document.createElement("thead");
+                        table.appendChild(thead);
+                        let tr = document.createElement("tr");
+                        table.appendChild(tr);
+                        let th1 = document.createElement("th");
+                        th1.textContent = "Seller Name";
+                        let th2 = document.createElement("th");
+                        th2.textContent = "Price Articles";
+                        let th3 = document.createElement("th");
+                        th3.textContent = "Price Shipment";
+                        let th4 = document.createElement("th");
+                        th4.textContent = "Total Price";
+                        let th5 = document.createElement("th");
+                        th5.textContent = "Order Date";
+                        let th6 = document.createElement("th");
+                        th6.textContent = "Shipment Date";
+                        let th7 = document.createElement("th");
+                        th7.textContent = "Shipment Address";
+                        tr.appendChild(th1);
+                        tr.appendChild(th2);
+                        tr.appendChild(th3);
+                        tr.appendChild(th4);
+                        tr.appendChild(th5);
+                        tr.appendChild(th6);
+                        tr.appendChild(th7);
+                        table.appendChild(document.createElement("tbody"));
+                        let tr2 = document.createElement("tr");
+                        table.appendChild(tr2);
+                        let td1 = document.createElement("td");
+                        td1.textContent = order.sellerName;
+                        let td2 = document.createElement("td");
+                        td2.textContent = order.priceArticles;
+                        let td3 = document.createElement("td");
+                        td3.textContent = order.priceShipment;
+                        let td4 = document.createElement("td");
+                        td4.textContent = order.priceTotal;
+                        let td5 = document.createElement("td");
+                        td5.textContent = order.orderDate;
+                        let td6 = document.createElement("td");
+                        td6.textContent = order.shipmentDate;
+                        let td7 = document.createElement("td");
+                        td7.textContent = order.shipmentAddr;
+                        tr2.appendChild(td1);
+                        tr2.appendChild(td2);
+                        tr2.appendChild(td3);
+                        tr2.appendChild(td4);
+                        tr2.appendChild(td5);
+                        tr2.appendChild(td6);
+                        tr2.appendChild(td7);
+                        for (let i = 0; i < order.articleBeans.length; i++) {
+                            let articles = order.articleBeans;
+                            let th8 = document.createElement("th");
+                            th8.textContent = "Article Name";
+                            let th9 = document.createElement("th");
+                            th9.textContent = "Article Qty";
+                            let th10 = document.createElement("th");
+                            th10.textContent = "Article Price";
+                            table.appendChild(th8);
+                            table.appendChild(th9);
+                            table.appendChild(th10);
+                            let tr3 = document.createElement("tr");
+                            let td8 = document.createElement("td");
+                            td8.textContent = articles[i].name;
+                            let td9 = document.createElement("td");
+                            td9.textContent = articles[i].quantity;
+                            let td10 = document.createElement("td");
+                            td10.textContent = articles[i].price;
+                            table.appendChild(tr3);
+                            tr3.appendChild(td8);
+                            tr3.appendChild(td9);
+                            tr3.appendChild(td10);
+                        }
+                        self.order_table.appendChild(table);
+                        self.order_table.appendChild(document.createElement("br"));
+                        self.order_table.appendChild(document.createElement("br"));
+                    });
+                    self.order_table.style.display = "block";
+                }
+
+            };
+
+            this.hide = function () {
+                self.order_table.style.display = "none";
             }
         }
 
