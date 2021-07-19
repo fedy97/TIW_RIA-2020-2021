@@ -3,7 +3,7 @@
  */
 (function () {
     //Vars
-    let userInfo, articleList, searchComponent;
+    let menu, articleList, orderList, searchComponent, cartComponent;
 
     let pageOrchestrator = new PageOrchestrator();
 
@@ -15,10 +15,11 @@
     function PageOrchestrator() {
         this.start = function () {
             //Init components
-            userInfo = new UserInfo(
-                sessionStorage.getItem('name'),
-                sessionStorage.getItem('id'),
+            menu = new Menu(
                 document.getElementById("user-data"),
+                document.getElementById("home_a"),
+                document.getElementById("cart_a"),
+                document.getElementById("order_a"),
                 document.getElementById("logout")
             );
 
@@ -26,7 +27,11 @@
                 document.getElementById("last-articles")
             );
 
-            searchComponent = new Search(document.getElementById("search"), articleList);
+            searchComponent = new Search(
+                document.getElementById("search"),
+                articleList,
+                document.getElementById("search_div")
+            );
 
             //     sellerOfferList = new TransferList(
             //         document.getElementById("account-details"),
@@ -55,32 +60,54 @@
             // };
             this.refresh = function () {
                 //Refresh view
-                // userInfo.show();
+                menu.show();
                 articleList.show('home');
             };
         }
 
-        function UserInfo(
-            _name, _id, _user_item,
-            _logout_button) {
+        function Menu(_user_item, _home, _cart, _order,
+                      _logout_button) {
 
-            this.name = _name;
+            let self = this;
+            this.cart = _cart;
+            this.home = _home;
+            this.order = _order;
             this.user_item = _user_item;
             this.logout_button = _logout_button;
 
             this.show = function () {
-                self.user_item.textContent = self.name;
+                self.user_item.textContent = sessionStorage.getItem('mail');
             }
+
+            this.home.addEventListener("click", e => {
+                //TODO hide all other components
+                articleList.show('home');
+                searchComponent.show();
+            });
+
+            this.cart.addEventListener("click", e => {
+                articleList.hide();
+                searchComponent.hide();
+                cartComponent.show();
+            });
+
+            this.order.addEventListener("click", e => {
+                articleList.hide();
+                searchComponent.hide();
+                cartComponent.hide();
+                orderList.show();
+            });
 
             this.logout_button.addEventListener("click", e => {
                 sessionStorage.clear();
             });
         }
 
-        function Search(_search_button, _article_list_component) {
+        function Search(_search_button, _article_list_component, _search_component) {
             let self = this;
             this.search_button = _search_button;
             this.article_list_component = _article_list_component;
+            this.search_component = _search_component;
 
             this.search_button.addEventListener("click", (e) => {
 
@@ -93,6 +120,13 @@
                 }
             })
 
+            this.show = function () {
+                self.search_component.style.display = "block";
+            }
+
+            this.hide = function () {
+                self.search_component.style.display = "none";
+            }
         }
 
 
@@ -200,6 +234,10 @@
                     }
                 }
             };
+
+            this.hide = function () {
+                self.article_list.style.display = "none";
+            }
         }
 
 
