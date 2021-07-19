@@ -3,7 +3,7 @@
  */
 (function () {
     //Vars
-    let menu, articleList, orderList, searchComponent, cartComponent;
+    let menu, articleList, articleDetails, orderList, searchComponent, cartComponent;
 
     let pageOrchestrator = new PageOrchestrator();
 
@@ -34,6 +34,7 @@
                 document.getElementById("search_div")
             );
 
+            articleDetails = [];
             orderList = new OrderList(document.getElementById("order_table"));
 
             this.refresh = function () {
@@ -237,10 +238,10 @@
 
 
         function ArticleList(
-            _article_div) {
+            _articles_div) {
 
             let self = this;
-            this.article_list = _article_div;
+            this.article_list = _articles_div;
 
             this.show = function (source) {
                 let title = document.getElementById("home_title");
@@ -280,7 +281,7 @@
                         self.article_list.textContent = "No items";
                         self.article_list.style.display = "block";
                     } else {
-                        let item, item_title, item_data, img, div1, div2, b1, b2, details_button;
+                        let item, item_title, item_data, img, div1, div2, b1, b2, details_button, details_div;
                         _articles.forEach((art) => {
                             item = document.createElement("div");
                             item.className = "item item-blue";
@@ -297,18 +298,18 @@
                             item_data.className = "item-data";
 
                             b1 = document.createElement("b");
-                            b1.textContent = "Description: ";
+                            b1.textContent = "Code: ";
                             div1 = document.createElement("div");
                             div1.appendChild(b1);
-                            div1.appendChild(document.createTextNode(art.description));
+                            div1.appendChild(document.createTextNode(art.id));
                             item_data.appendChild(div1);
 
-
                             b2 = document.createElement("b");
-                            b2.textContent = "Category: ";
+                            b2.textContent = "Min price: ";
                             div2 = document.createElement("div");
                             div2.appendChild(b2);
-                            div2.appendChild(document.createTextNode(art.description));
+                            div2.appendChild(document.createTextNode(art.price));
+                            div2.appendChild(document.createTextNode("€"));
                             item_data.appendChild(div2);
 
                             item.appendChild(item_data);
@@ -319,22 +320,22 @@
 
                             details_button.setAttribute('article_id', art.id);
                             details_button.addEventListener("click", (e) => {
-                                // if(e.target.textContent === "Open"){
-                                //     if(self.last_used_open_button !== null){
-                                //         self.last_used_open_button.textContent = "Open";
-                                //     }
-                                //     e.target.textContent = "Hide";
-                                //     self.last_used_open_button = e.target;
-                                //     self.currentSelectedId = acc.id;
-                                //     transferList.show(acc.id);
-                                // }else{
-                                //     self.last_used_open_button = null;
-                                //     self.currentSelectedId = NaN;
-                                //     e.target.textContent = "Open";
-                                //     transferList.hide();
-                                // }
+                                if (e.target.textContent === "See details") {
+                                    articleDetails[art.id].show();
+                                    e.target.textContent = "Hide";
+                                } else {
+                                    e.target.textContent = "See details";
+                                    articleDetails[art.id].hide();
+                                }
                             });
                             item.appendChild(details_button);
+
+                            details_div = document.createElement("div");
+                            details_div.style.display = "none";
+                            details_div.id = "article_" + art.id;
+                            item.appendChild(details_div);
+
+                            articleDetails[art.id] = new ArticleDetails(art.id, details_div);
 
                             self.article_list.appendChild(item);
                         });
@@ -349,5 +350,150 @@
         }
 
 
+        function ArticleDetails(_article_id,
+                                _article_div) {
+
+            let self = this;
+            this.article_id = _article_id;
+            this.article_div = _article_div;
+
+            this.show = function () {
+                //Request and update with the results
+                makeCall("GET", "article?article_id=" + self.article_id, null, (resp) => {
+                    switch (resp.status) {
+                        case 200: //ok
+                            let article = JSON.parse(resp.responseText);
+                            self.update(article, null);
+                            break;
+                        case 400: // bad request
+                        case 401: // unauthorized
+                        case 500: // server error
+                            self.update(null, resp.responseText);
+                            break;
+                        default: //Error
+                            self.update(null, "Request reported status " + resp.status);
+                            break;
+                    }
+                });
+            };
+
+            this.update = function (_article, _error) {
+
+                self.article_div.style.display = "none";
+
+                if (_error) {
+
+                    self.article_list.textContent = _error;
+                    self.article_list.style.display = "block";
+
+                } else {
+                    let article_data = document.createElement("div");
+                    article_data.className = "item-data";
+
+                    let b1 = document.createElement("b");
+                    b1.textContent = "Description: ";
+                    let div1 = document.createElement("div");
+                    div1.appendChild(b1);
+                    div1.appendChild(document.createTextNode(_article.description));
+                    article_data.appendChild(div1);
+
+
+                    let b2 = document.createElement("b");
+                    b2.textContent = "Category: ";
+                    let div2 = document.createElement("div");
+                    div2.appendChild(b2);
+                    div2.appendChild(document.createTextNode(_article.category));
+                    article_data.appendChild(div2);
+
+                    self.article_div.appendChild(article_data);
+                    self.article_div.appendChild(document.createElement("br"));
+
+                    let item, item_data, seller_name, seller_price, seller_rating, seller_threshold, add_form;
+
+                    _article.sellers.forEach((seller) => {
+                        item = document.createElement("div");
+                        item.className = "item item-blue";
+                        item_data = document.createElement("div");
+                        item_data.className = "item-data";
+
+                        seller_name = document.createElement("div");
+                        seller_name.innerHTML = "<div><b> Seller: </b><span>" + seller.sellerName + "</span></div>";
+                        item_data.appendChild(seller_name);
+
+                        seller_price = document.createElement("div");
+                        seller_price.innerHTML = "<div><b> Price: </b><span>" + seller.price + "</span><span>&#8364;</span></div>";
+                        item_data.appendChild(seller_price);
+
+                        seller_rating = document.createElement("div");
+                        seller_rating.innerHTML = "<div><b> Rating: </b><span>" + seller.sellerRating + "</span></div>";
+                        item_data.appendChild(seller_rating);
+
+                        item.appendChild(item_data);
+                        item.appendChild(document.createElement("br"));
+
+                        seller.shippingPolicies.forEach((shipping_policy) => {
+                            let ship_item = document.createElement("div");
+                            let span_item = document.createElement("span");
+
+                            if (shipping_policy.maxItem !== null && shipping_policy.maxItem !== undefined) {
+                                span_item.textContent = "For order with articles between " + shipping_policy.minItem + " and " + shipping_policy.maxItem + " the shipping cost is " + shipping_policy.shipCost;
+                            } else {
+                                span_item.textContent = "For more than " + shipping_policy.minItem + " articles the shipping is free";
+                            }
+                            ship_item.appendChild(span_item);
+                            ship_item.appendChild(document.createElement("hr"));
+                            item.appendChild(ship_item);
+                        });
+
+                        seller_threshold = document.createElement("div");
+                        seller_threshold.innerHTML = "Free shipping for orders greater than <b>" + seller.priceThreshold + "</b><b>&#8364;</b>";
+                        item.appendChild(seller_threshold);
+
+                        //TODO existing article
+
+                        add_form = document.createElement("form");
+                        add_form.className = "add-article-form";
+                        add_form.method = "POST";
+
+                        let article_input = document.createElement("input");
+                        article_input.name = "article_id";
+                        article_input.type="hidden";
+                        article_input.value = _article.id;
+                        article_input.required = true;
+                        add_form.appendChild(article_input);
+
+
+                        let seller_input = document.createElement("input");
+                        seller_input.name = "seller_id";
+                        seller_input.type="hidden";
+                        seller_input.value = seller.id;
+                        seller_input.required = true;
+                        add_form.appendChild(seller_input);
+
+                        let form_group = document.createElement("div");
+                        form_group.className = "form-group";
+                        form_group.innerHTML = '<div class="form-group"><label for="article_qty">Qty</label><input  id="article_qty" type="number" name="article_qty" value="1" min="1" step="1" required/></div>';
+                        add_form.appendChild(form_group);
+
+                        let input_button = document.createElement("input");
+                        input_button.className = "btn btn-large btn-blue btn-primary";
+                        input_button.type = "button";
+                        input_button.value = "Add";
+                        //TODO add event listener
+                        add_form.appendChild(input_button);
+
+                        item.appendChild(add_form);
+                        self.article_div.appendChild(item);
+                    });
+                    self.article_div.style.display = "block";
+
+                }
+            };
+
+            this.hide = function () {
+                self.article_div.style.display = "none";
+                self.article_div.innerHTML = "";
+            }
+        }
     }
 })();

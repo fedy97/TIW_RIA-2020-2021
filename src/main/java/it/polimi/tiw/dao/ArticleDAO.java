@@ -42,7 +42,8 @@ public class ArticleDAO {
 
     public List<ArticleBean> findArticleByViews(String userId) throws SQLException {
 
-        String query = "SELECT DISTINCT * FROM article a LEFT OUTER JOIN user_article u_a ON a.id=u_a.article_id  WHERE u_a.user_id = :userid ORDER BY view_ts DESC LIMIT 5";
+        String query = "SELECT DISTINCT article.*, MIN(price) as price FROM (article a INNER JOIN seller_article s_a ON (a.id = s_a.article_id))  LEFT OUTER JOIN user_article u_a  a.id=u_a.article_id  WHERE u_a.user_id = :userid " +
+                "GROUP BY a.id, a.name, a.description, a.category, a.photo, a.insr_ts ORDER BY view_ts DESC LIMIT 5";
         Map<String, Object> queryParam = new HashMap<>();
         queryParam.put("userid", userId);
         return queryExecutor.select(query, queryParam, ArticleBean.class);
@@ -50,7 +51,7 @@ public class ArticleDAO {
 
     public List<ArticleBean> findLastArticles(Integer articlesNumber) throws SQLException {
 
-        String query = "SELECT * FROM article ORDER BY insr_ts DESC LIMIT " + articlesNumber;
+        String query = "SELECT article.*, MIN(price) as price FROM article a WHERE a.category='Accessori auto' GROUP BY a.id, a.name, a.description, a.category, a.photo, a.insr_ts s DESC LIMIT " + articlesNumber;
         return queryExecutor.select(query, new HashMap<>(), ArticleBean.class);
     }
 

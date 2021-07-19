@@ -1,39 +1,13 @@
-<div class="article-div blue-div" th:fragment="article_details" xmlns:th="http://www.w3.org/1999/xhtml">
+<div id="article_details" class="article-div blue-div">
     <div class="item item-blue">
-        <div class="item-title" th:text="${article.getName()}">Spray magico</div>
-        <img th:src="${article.getPhoto()}">
+        <div id="article_title" class="item-title"></div>
+        <img id="article_img">
         <div class="item-data">
-            <div><b>Description: </b><span th:text="${article.getDescription()}">It is a fantastic product</span></div>
-            <div><b>Category: </b><span th:text="${article.getCategory()}">Home</span></div>
+            <div><b>Description: </b><span id="article_description"></span></div>
+            <div><b>Category: </b><span id="article_category"></span></div>
         </div>
         <br>
-        <div class="item item-blue" th:each="seller_offer : ${seller_offers}">
-            <div class="item-data">
-                <div><b> Seller: </b><span th:text="${seller_offer.getSellerName()}"></span></div>
-                <div><b> Price: </b><span th:text="${seller_offer.getPrice()}"></span><span>&#8364;</span></div>
-                <div><b> Rating: </b><span th:text="${seller_offer.getSellerRating()}"></span></div>
-            </div>
-            <br>
-            <div th:each="shipping_policy : ${seller_offer.getShippingPolicies()}">
-                <span th:if="!${shipping_policy.getMaxItem()}" th:text="'For more than ' + ${shipping_policy.getMinItem()} + ' articles the shipping is free'"}></span>
-                <span th:if="${shipping_policy.getMaxItem()}"><span th:text="'For order with articles between ' +  ${shipping_policy.getMinItem()}  + ' and ' + ${shipping_policy.getMaxItem()} + ' the shipping cost is ' + ${shipping_policy.getShipCost()}"></span><span>&#8364;</span></span>
-                <hr>
-            </div>
-            <div> Free shipping for orders greater than <b
-                    th:text="${seller_offer.getPriceThreshold()}"></b><b>&#8364;</b></div>
-            <br>
-            <div><span th:text="${seller_offer.getExistingArticles()} ? 'You have already '+ ${seller_offer.getExistingArticles().getLeft()} + ' for a total of ' + ${seller_offer.getExistingArticles().getRight() + ' euro'}:
-            'You do not have articles of this seller in your cart yet'"></span></div>
-            <br>
-            <form class="add-article-form" action="#" th:action="@{/add}" method="POST">
-                <input type="hidden" name="article_id" th:value="${article.getId()}" required/>
-                <input type="hidden" name="seller_id" th:value="${seller_offer.getSellerId()}" required/>
-                <div class="form-group">
-                    <label for="article_qty">Qty</label>
-                    <input  id="article_qty" type="number" name="article_qty" value="1" min="1" step="1" required/>
-                </div>
-                <button class="btn btn-large btn-blue btn-primary" type="submit">Add</button>
-            </form>
+        <div id="sellers">
         </div>
     </div>
 </div>

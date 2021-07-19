@@ -1,15 +1,22 @@
 
 package it.polimi.tiw.bean;
 
+import java.util.List;
+
+import it.polimi.tiw.utils.Ignore;
+
 public class ArticleBean {
 
-    String id;
-    String name;
-    String description;
-    String category;
-    String photo;
-    String quantity;
-    String price;
+    private String                id;
+    private String                name;
+    private String                description;
+    private String                category;
+    private String                photo;
+    private String                quantity;
+    private String                price;
+
+    @Ignore
+    private List<SellerOfferBean> sellers;
 
     public String getId() {
 
@@ -62,31 +69,40 @@ public class ArticleBean {
     }
 
     public String getQuantity() {
+
         return quantity;
     }
 
     public void setQuantity(String quantity) {
+
         this.quantity = quantity;
     }
 
     public String getPrice() {
+
         return price;
     }
 
     public void setPrice(String price) {
+
         this.price = price;
+    }
+
+    public List<SellerOfferBean> getSellers() {
+
+        return sellers;
+    }
+
+    public void setSellers(List<SellerOfferBean> sellers) {
+
+        this.sellers = sellers;
     }
 
     @Override
     public String toString() {
-        return "ArticleBean{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", category='" + category + '\'' +
-                ", photo='" + photo + '\'' +
-                ", quantity='" + quantity + '\'' +
-                ", price='" + price + '\'' +
-                '}';
+
+        return "ArticleBean{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", description='" + description + '\''
+                + ", category='" + category + '\'' + ", photo='" + photo + '\'' + ", quantity='" + quantity + '\''
+                + ", price='" + price + '\'' + ", sellers=" + sellers + '}';
     }
 }
