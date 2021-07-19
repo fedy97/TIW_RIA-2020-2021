@@ -21,7 +21,7 @@
             console.log(resp.status);
             switch(resp.status){ //Get status code
                 case 200: //Okay
-                    var data = JSON.parse(resp.responseText);
+                    let data = JSON.parse(resp.responseText);
                     console.log(data);
                     sessionStorage.setItem('id', data.id);
                     sessionStorage.setItem('email', data.email);
