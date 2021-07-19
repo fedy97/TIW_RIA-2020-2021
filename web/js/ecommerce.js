@@ -66,11 +66,10 @@
             };
         }
 
-        function Menu(_user, _user_item, _home, _cart, _order,
+        function Menu(_email, _user_item, _home, _cart, _order,
                       _logout_button) {
 
             let self = this;
-            this.user = _user;
             this.cart = _cart;
             this.home = _home;
             this.order = _order;
@@ -78,7 +77,7 @@
             this.logout_button = _logout_button;
 
             this.show = function () {
-                self.user_item.textContent = JSON.parse(this.user).email;
+                self.user_item.textContent = _email;
             }
 
             this.home.addEventListener("click", e => {

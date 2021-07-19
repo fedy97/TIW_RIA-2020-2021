@@ -1,15 +1,3 @@
-/**
- * Loading Div
- * -------------
- * Description: If the class "loading" is added to body, a modal waiting window is shown.
- *              To hide the window, just remove class "loading" from body.
- * Notes:
- * - Object instance is global on purpose as to be used if needed in other js files.
- * - It's even possible to import css and append message div directly to the document
- *   in an init event. In this case, was chose not to do so, to optimize the loading of the page.
- * - This object does not conflict with eventual other body's classes
- */
-
 //Create and init object
 var loadingModal = new LoadingModal(document.getElementById("loading_msg"));
 
@@ -32,17 +20,6 @@ function LoadingModal(loading_msg){
     };
 }
 
-/**
- * Implicit submission for forms
- * -------------
- * Description: Whenever the user press ENTER on an input of a form, the first button
- *              found in the form is clicked.
- * Notes:
- * - Hidden inputs are obviously excluded.
- * - When input is single-line text, default action is performing a submit. To override this behaviour,
- *   we prevent default action.
- *   (see https://www.w3.org/MarkUp/html-spec/html-spec_8.html#SEC8.2)
- */
 (function (){
     var forms = document.getElementsByTagName("form");
     Array.from(forms).forEach(form => {
@@ -60,19 +37,8 @@ function LoadingModal(loading_msg){
     });
 })();
 
-/**
- * AJAX call management
- * -------------
- * Description: Make a call to server using AJAX, and report the results.
- *
- * @param {*} method GET/POST method
- * @param {*} relativeUrl relative url of the call
- * @param {*} form form to serialize and send. If null, empty request is sent.
- * @param {*} done_callback callback when the request is completed. Takes as argument an XMLHttpRequest
- * @param {*} reset Optionally reset the form (if provided). Default true
- */
 function makeCall(method, relativeUrl, form, done_callback, reset = true) {
-    var req = new XMLHttpRequest(); //Create new request
+    let req = new XMLHttpRequest(); //Create new request
     //Init request
     req.onreadystatechange = function() {
         switch(req.readyState){
@@ -88,6 +54,8 @@ function makeCall(method, relativeUrl, form, done_callback, reset = true) {
                 break;
             case XMLHttpRequest.DONE:
                 loadingModal.update("Request completed");
+                if(req.status == 401) //Unauthorized
+                    window.location.href = "login.html";
                 if (checkRedirect(relativeUrl, req.responseURL)){ //Redirect if needed
                     done_callback(req);
                 }

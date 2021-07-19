@@ -21,7 +21,7 @@
             console.log(resp.status);
             switch(resp.status){ //Get status code
                 case 200: //Okay
-                    sessionStorage.setItem('username', resp.responseText);
+                    sessionStorage.setItem('username',  JSON.parse(resp.responseText).email);
                     window.location.href = "home.html";
                     break;
                 case 400: // bad request
