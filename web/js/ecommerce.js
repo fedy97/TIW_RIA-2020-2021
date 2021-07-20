@@ -161,6 +161,7 @@
                         table.appendChild(tr);
                         let th1 = document.createElement("th");
                         th1.textContent = "Seller Name";
+                        th1.id = order.id;
                         let th2 = document.createElement("th");
                         th2.textContent = "Price Articles";
                         let th3 = document.createElement("th");
@@ -230,6 +231,7 @@
                         self.order_table.appendChild(table);
                         self.order_table.appendChild(document.createElement("br"));
                         self.order_table.appendChild(document.createElement("br"));
+                        //popupWindow(th1.id, table);
                     });
                     self.order_table.style.display = "block";
                 }
@@ -422,8 +424,10 @@
                         item_data.className = "item-data";
 
                         seller_name = document.createElement("div");
+                        seller_name.id = seller.sellerName + _article.name;
                         seller_name.innerHTML = "<div><b> Seller: </b><span>" + seller.sellerName + "</span></div>";
                         item_data.appendChild(seller_name);
+
 
                         seller_price = document.createElement("div");
                         seller_price.innerHTML = "<div><b> Price: </b><span>" + seller.price + "</span><span>&#8364;</span></div>";
@@ -530,6 +534,7 @@
 
                         item.appendChild(add_form);
                         self.article_div.appendChild(item);
+                        popupWindow(seller_name.id, item);
                     });
                     self.article_div.style.display = "block";
 
@@ -541,183 +546,209 @@
                 self.article_div.innerHTML = "";
             }
         }
+    }
 
+    function Cart(
+        _cart_div, _sellers_div, _cart_title) {
 
-        function Cart(
-            _cart_div, _sellers_div, _cart_title) {
+        let self = this;
+        this.cart_div = _cart_div;
+        this.sellers_div = _sellers_div;
+        this.cart_title = _cart_title;
 
-            let self = this;
-            this.cart_div = _cart_div;
-            this.sellers_div = _sellers_div;
-            this.cart_title = _cart_title;
+        this.show = function () {
+            //Request and update with the results
+            let shipping_price = 0;
+            let articles_price = 0;
+            let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
+            if (cart === null || cart === undefined)
+                cart = {};
+            else
+                cart = JSON.parse(cart);
 
-            this.show = function () {
-                //Request and update with the results
-                let shipping_price = 0;
-                let articles_price = 0;
-                let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
-                if (cart === null || cart === undefined)
-                    cart = {};
-                else
-                    cart = JSON.parse(cart);
-
-                for (let seller in cart) {
-                    if (Object.prototype.hasOwnProperty.call(cart, seller)) {
-                        let articles = 0;
-                        cart[seller].articles.forEach(entry => {
-                            articles += entry.qty;
-
-                            //get article price from BE
-                            makeCall("GET", "/price?article_id=" + entry.article_id + "&seller_id=" + seller, null, (resp) => {
-                                if (resp.status === 200) {
-                                    let article_price = JSON.parse(resp.responseText).price;
-                                    entry.price = article_price * entry.qty;
-                                    articles_price += entry.price * entry.qty;
-                                } else {
-                                    self.update(null, "Request reported status " + resp.status);
-                                }
-                            });
-                        });
+            for (let seller in cart) {
+                if (Object.prototype.hasOwnProperty.call(cart, seller)) {
+                    let articles = 0;
+                    cart[seller].articles.forEach(entry => {
+                        articles += entry.qty;
 
                         //get article price from BE
-                        makeCall("GET", "/shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
+                        makeCall("GET", "/price?article_id=" + entry.article_id + "&seller_id=" + seller, null, (resp) => {
                             if (resp.status === 200) {
-                                shipping_price = JSON.parse(resp.responseText).price;
+                                let article_price = JSON.parse(resp.responseText).price;
+                                entry.price = article_price * entry.qty;
+                                articles_price += entry.price * entry.qty;
                             } else {
                                 self.update(null, "Request reported status " + resp.status);
                             }
-                        });//get details
+                        });
+                    });
 
-                        cart[seller].articles_price = articles_price;
-                        cart[seller].shipping_price = shipping_price;
-                    }
+                    //get article price from BE
+                    makeCall("GET", "/shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
+                        if (resp.status === 200) {
+                            shipping_price = JSON.parse(resp.responseText).price;
+                        } else {
+                            self.update(null, "Request reported status " + resp.status);
+                        }
+                    });//get details
+
+                    cart[seller].articles_price = articles_price;
+                    cart[seller].shipping_price = shipping_price;
                 }
+            }
 
-                self.update(cart);
+            self.update(cart);
 
-            };
+        };
 
-            this.update = function (_cart, _error) {
+        this.update = function (_cart, _error) {
 
-                self.cart_div.style.display = "none";
-                self.sellers_div.innerHTML = "";
+            self.cart_div.style.display = "none";
+            self.sellers_div.innerHTML = "";
 
-                if (_error) {
-                    self.cart_div.textContent = _error;
+            if (_error) {
+                self.cart_div.textContent = _error;
+                self.cart_div.style.display = "block";
+            } else {
+                let item_title;
+
+                if (Object.keys(_cart).length === 0) {
+                    self.cart_title.textContent = "No articles in your cart yet. Go shopping!";
                     self.cart_div.style.display = "block";
                 } else {
-                    let item_title;
+                    self.cart_title.textContent = "Here you can find your cart articles";
 
-                    if (Object.keys(_cart).length === 0) {
-                        self.cart_title.textContent = "No articles in your cart yet. Go shopping!";
-                        self.cart_div.style.display = "block";
-                    } else {
-                        self.cart_title.textContent = "Here you can find your cart articles";
+                    for (let seller in _cart) {
+                        if (Object.prototype.hasOwnProperty.call(_cart, seller)) {
 
-                        for (let seller in _cart) {
-                            if (Object.prototype.hasOwnProperty.call(_cart, seller)) {
+                            let div1, div2, b1, b2, div3, b3, item_data, item, order_form;
 
-                                let div1, div2, b1, b2, div3, b3, item_data, item, order_form;
-
-                                item = document.createElement("div");
-                                item.className = "item item-blue";
-                                item_title = document.createElement("div");
-                                item_title.className = "item-title";
-                                item_title.textContent = _cart[seller].name;
-                                item.appendChild(item_title);
+                            item = document.createElement("div");
+                            item.className = "item item-blue";
+                            item_title = document.createElement("div");
+                            item_title.className = "item-title";
+                            item_title.textContent = _cart[seller].name;
+                            item.appendChild(item_title);
 
 
-                                _cart[seller].articles.forEach(art => {
-
-                                    item_data = document.createElement("div");
-                                    item_data.className = "item-data";
-
-                                    b1 = document.createElement("b");
-                                    b1.textContent = "Name: ";
-                                    div1 = document.createElement("div");
-                                    div1.appendChild(b1);
-                                    div1.appendChild(document.createTextNode(art.name));
-                                    item_data.appendChild(div1);
-
-                                    b2 = document.createElement("b");
-                                    b2.textContent = "Price: ";
-                                    div2 = document.createElement("div");
-                                    div2.appendChild(b2);
-                                    div2.appendChild(document.createTextNode(art.price));
-                                    div2.appendChild(document.createTextNode("€"));
-                                    item_data.appendChild(div2);
-
-                                    b3 = document.createElement("b");
-                                    b3.textContent = "Qty: ";
-                                    div3 = document.createElement("div");
-                                    div3.appendChild(b2);
-                                    div3.appendChild(document.createTextNode(art.qty));
-                                    div3.appendChild(document.createTextNode("€"));
-                                    item_data.appendChild(div3);
-                                    item_data.appendChild(document.createElement("hr"));
-                                    item.appendChild(item_data);
-                                });
+                            _cart[seller].articles.forEach(art => {
 
                                 item_data = document.createElement("div");
                                 item_data.className = "item-data";
 
                                 b1 = document.createElement("b");
-                                b1.textContent = "Articles cost: ";
+                                b1.textContent = "Name: ";
                                 div1 = document.createElement("div");
                                 div1.appendChild(b1);
-                                div1.appendChild(document.createTextNode(_cart[seller].articles_price));
+                                div1.appendChild(document.createTextNode(art.name));
                                 item_data.appendChild(div1);
 
                                 b2 = document.createElement("b");
-                                b2.textContent = "Shipping cost: ";
+                                b2.textContent = "Price: ";
                                 div2 = document.createElement("div");
                                 div2.appendChild(b2);
-                                div2.appendChild(document.createTextNode(_cart[seller].shipping_price));
+                                div2.appendChild(document.createTextNode(art.price));
                                 div2.appendChild(document.createTextNode("€"));
                                 item_data.appendChild(div2);
 
-                                item.append(item_data);
-                                item.append(document.createElement("br"));
+                                b3 = document.createElement("b");
+                                b3.textContent = "Qty: ";
+                                div3 = document.createElement("div");
+                                div3.appendChild(b2);
+                                div3.appendChild(document.createTextNode(art.qty));
+                                div3.appendChild(document.createTextNode("€"));
+                                item_data.appendChild(div3);
+                                item_data.appendChild(document.createElement("hr"));
+                                item.appendChild(item_data);
+                            });
 
-                                order_form = document.createElement("form");
-                                order_form.className = "order-form";
-                                order_form.method = "POST";
+                            item_data = document.createElement("div");
+                            item_data.className = "item-data";
 
-                                let seller_input = document.createElement("input");
-                                seller_input.name = "seller_id";
-                                seller_input.type = "hidden";
-                                seller_input.value = seller.id;
-                                seller_input.required = true;
-                                order_form.appendChild(seller_input);
+                            b1 = document.createElement("b");
+                            b1.textContent = "Articles cost: ";
+                            div1 = document.createElement("div");
+                            div1.appendChild(b1);
+                            div1.appendChild(document.createTextNode(_cart[seller].articles_price));
+                            item_data.appendChild(div1);
 
-                                let articles_input = document.createElement("input");
-                                articles_input.name = "articles";
-                                articles_input.type = "hidden";
-                                articles_input.value = JSON.stringify(_cart[seller].articles);
-                                articles_input.required = true;
-                                order_form.appendChild(articles_input);
+                            b2 = document.createElement("b");
+                            b2.textContent = "Shipping cost: ";
+                            div2 = document.createElement("div");
+                            div2.appendChild(b2);
+                            div2.appendChild(document.createTextNode(_cart[seller].shipping_price));
+                            div2.appendChild(document.createTextNode("€"));
+                            item_data.appendChild(div2);
 
-                                let input_button = document.createElement("input");
-                                input_button.className = "btn btn-large btn-blue btn-primary";
-                                input_button.type = "button";
-                                input_button.value = "Order";
-                                //TODO add event listener
-                                order_form.appendChild(input_button);
-                                item.appendChild(order_form);
+                            item.append(item_data);
+                            item.append(document.createElement("br"));
 
-                                self.sellers_div.appendChild(item);
-                            }
+                            order_form = document.createElement("form");
+                            order_form.className = "order-form";
+                            order_form.method = "POST";
+
+                            let seller_input = document.createElement("input");
+                            seller_input.name = "seller_id";
+                            seller_input.type = "hidden";
+                            seller_input.value = seller.id;
+                            seller_input.required = true;
+                            order_form.appendChild(seller_input);
+
+                            let articles_input = document.createElement("input");
+                            articles_input.name = "articles";
+                            articles_input.type = "hidden";
+                            articles_input.value = JSON.stringify(_cart[seller].articles);
+                            articles_input.required = true;
+                            order_form.appendChild(articles_input);
+
+                            let input_button = document.createElement("input");
+                            input_button.className = "btn btn-large btn-blue btn-primary";
+                            input_button.type = "button";
+                            input_button.value = "Order";
+                            //TODO add event listener
+                            order_form.appendChild(input_button);
+                            item.appendChild(order_form);
+
+                            self.sellers_div.appendChild(item);
                         }
-                        self.cart_div.style.display = "block";
                     }
+                    self.cart_div.style.display = "block";
                 }
-            };
-
-            this.hide = function () {
-                self.cart_div.style.display = "none";
             }
+        };
+
+        this.hide = function () {
+            self.cart_div.style.display = "none";
         }
     }
+}
 
-
+    function popupWindow(hoverableElementId, popupTagPosition) {
+        let popup = {
+            open : function () {
+                if (this.element == null) {
+                    // create new div element to be our popup and store it in the popup object
+                    this.element = document.createElement('div');
+                    this.element.id = "popup" + hoverableElementId;
+                    // you don't need a full html document here. Just the stuff you were putting in the <body> tag before
+                    this.element.innerHTML = "<h1>" + this.element.id + "</h1>";
+                    // Some bare minimum styles to make this work as a popup. Would be better in a stylesheet
+                    //this.element.style = "position: absolute; top: 50px; right: 50px; width: 300px; height: 300px; background-color: #fff;";
+                    this.element.className = "blue-div";
+                }
+                // Add it to your <body> tag
+                popupTagPosition.appendChild(this.element);
+                // call whatever setup functions you were calling before
+            },
+            close : function () {
+                // get rid of the popup
+                popupTagPosition.removeChild(this.element);
+                // any other code you want
+            }
+        };
+        let hoverOverMe = document.getElementById(hoverableElementId);
+        hoverOverMe.onmouseover = popup.open;
+        hoverOverMe.onmouseout = popup.close;
+    }
 })();
