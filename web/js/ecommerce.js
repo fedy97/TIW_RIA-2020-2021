@@ -498,8 +498,8 @@
                                     cart = JSON.parse(localStorage.getItem("cart_" + sessionStorage.getItem("username")));
                                     if (cart !== null && cart !== undefined && cart.length !== 0) {
                                         seller_entry = cart[input_seller.value];
-                                        if (seller_entry !== null && seller_entry.length !== 0) {
-                                            article_entry = seller_entry.filter(article => article.article_id === input_article.value);
+                                        if (seller_entry !== null && seller_entry !== undefined && seller_entry.length !== 0) {
+                                            article_entry = seller_entry.articles.filter(article => article.article_id === input_article.value);
                                             if (article_entry.length !== 0) {
                                                 article_entry[0].qty += input_qty.value;
                                             } else {
@@ -576,7 +576,7 @@
                         makeCall("GET", "/price?article_id=" + entry.article_id + "&seller_id=" + seller, null, (resp) => {
                             if (resp.status === 200) {
                                 let article_price = JSON.parse(resp.responseText).price;
-                                entry.price = article_price * entry.qty;
+                                entry.price = article_price;
                                 articles_price += entry.price * entry.qty;
                             } else {
                                 self.update(null, "Request reported status " + resp.status);
@@ -659,6 +659,8 @@
                                 div3.appendChild(document.createTextNode(art.qty));
                                 div3.appendChild(document.createTextNode("€"));
                                 item_data.appendChild(div3);
+
+
                                 item_data.appendChild(document.createElement("hr"));
                                 item.appendChild(item_data);
                             });
@@ -722,7 +724,7 @@
             self.cart_div.style.display = "none";
         }
     }
-}
+
 
     function popupWindow(hoverableElementId, popupTagPosition) {
         let popup = {
@@ -751,4 +753,5 @@
         hoverOverMe.onmouseover = popup.open;
         hoverOverMe.onmouseout = popup.close;
     }
+
 })();
