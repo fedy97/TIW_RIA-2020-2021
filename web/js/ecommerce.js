@@ -512,7 +512,8 @@
                     // you don't need a full html document here. Just the stuff you were putting in the <body> tag before
                     this.element.innerHTML = "<h1>" + this.element.id + "</h1>";
                     // Some bare minimum styles to make this work as a popup. Would be better in a stylesheet
-                    this.element.style = "position: absolute; top: 50px; right: 50px; width: 300px; height: 300px; background-color: #fff;";
+                    //this.element.style = "position: absolute; top: 50px; right: 50px; width: 300px; height: 300px; background-color: #fff;";
+                    this.element.className = "blue-div";
                 }
                 // Add it to your <body> tag
                 popupTagPosition.appendChild(this.element);
