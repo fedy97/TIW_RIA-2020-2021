@@ -156,6 +156,7 @@
                         table.appendChild(tr);
                         let th1 = document.createElement("th");
                         th1.textContent = "Seller Name";
+                        th1.id = order.id;
                         let th2 = document.createElement("th");
                         th2.textContent = "Price Articles";
                         let th3 = document.createElement("th");
@@ -225,6 +226,7 @@
                         self.order_table.appendChild(table);
                         self.order_table.appendChild(document.createElement("br"));
                         self.order_table.appendChild(document.createElement("br"));
+                        //popupWindow(th1.id, table);
                     });
                     self.order_table.style.display = "block";
                 }
@@ -417,8 +419,10 @@
                         item_data.className = "item-data";
 
                         seller_name = document.createElement("div");
+                        seller_name.id = seller.sellerName + _article.name;
                         seller_name.innerHTML = "<div><b> Seller: </b><span>" + seller.sellerName + "</span></div>";
                         item_data.appendChild(seller_name);
+
 
                         seller_price = document.createElement("div");
                         seller_price.innerHTML = "<div><b> Price: </b><span>" + seller.price + "</span><span>&#8364;</span></div>";
@@ -484,6 +488,7 @@
 
                         item.appendChild(add_form);
                         self.article_div.appendChild(item);
+                        popupWindow(seller_name.id, item);
                     });
                     self.article_div.style.display = "block";
 
@@ -495,5 +500,32 @@
                 self.article_div.innerHTML = "";
             }
         }
+    }
+
+    function popupWindow(hoverableElementId, popupTagPosition) {
+        let popup = {
+            open : function () {
+                if (this.element == null) {
+                    // create new div element to be our popup and store it in the popup object
+                    this.element = document.createElement('div');
+                    this.element.id = "popup" + hoverableElementId;
+                    // you don't need a full html document here. Just the stuff you were putting in the <body> tag before
+                    this.element.innerHTML = "<h1>" + this.element.id + "</h1>";
+                    // Some bare minimum styles to make this work as a popup. Would be better in a stylesheet
+                    this.element.style = "position: absolute; top: 50px; right: 50px; width: 300px; height: 300px; background-color: #fff;";
+                }
+                // Add it to your <body> tag
+                popupTagPosition.appendChild(this.element);
+                // call whatever setup functions you were calling before
+            },
+            close : function () {
+                // get rid of the popup
+                popupTagPosition.removeChild(this.element);
+                // any other code you want
+            }
+        };
+        let hoverOverMe = document.getElementById(hoverableElementId);
+        hoverOverMe.onmouseover = popup.open;
+        hoverOverMe.onmouseout = popup.close;
     }
 })();
