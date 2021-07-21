@@ -117,7 +117,6 @@
 
         function OrderList(
             _order_table) {
-            console.log(_order_table);
             let self = this;
             this.order_table = _order_table;
 
@@ -499,26 +498,27 @@
                                     if (cart !== null && cart !== undefined && cart.length !== 0) {
                                         seller_entry = cart[input_seller.value];
                                         if (seller_entry !== null && seller_entry !== undefined && seller_entry.length !== 0) {
-                                            article_entry = seller_entry.articles.filter(article => article.article_id === input_article.value);
+                                            article_entry = seller_entry.articles.filter(article => article.id === input_article.value);
                                             if (article_entry.length !== 0) {
-                                                article_entry[0].qty += input_qty.value;
+                                                article_entry[0].quantity += input_qty.value;
                                             } else {
-                                                article_entry[0].qty = input_qty;
+                                                article_entry[0].quantity = input_qty;
                                             }
                                         } else {
-                                            cart[input_seller.value] = [];
-                                            cart[input_seller.value].push({
-                                                article_id: input_article.value,
-                                                qty: input_qty.value
+                                            cart[input_seller.value] = {};
+                                            cart[input_seller.value].articles = [];
+                                            cart[input_seller.value].articles.push({
+                                                id: input_article.value,
+                                                quantity: input_qty.value
                                             });
                                         }
                                     } else {
                                         cart = {};
                                         cart[input_seller.value] = {};
-                                        cart[input_seller.value].articles = []
+                                        cart[input_seller.value].articles = [];
                                         cart[input_seller.value].articles.push({
-                                            article_id: input_article.value,
-                                            qty: input_qty.value
+                                            id: input_article.value,
+                                            quantity: input_qty.value
                                         });
                                     }
 
@@ -529,12 +529,11 @@
                             //simulate click on cart
                         );
 
-
                         add_form.appendChild(input_button);
-
+                        //popupWindow(seller_name.id, item);
                         item.appendChild(add_form);
                         self.article_div.appendChild(item);
-                        popupWindow(seller_name.id, item);
+
                     });
                     self.article_div.style.display = "block";
 
@@ -570,14 +569,14 @@
                 if (Object.prototype.hasOwnProperty.call(cart, seller)) {
                     let articles = 0;
                     cart[seller].articles.forEach(entry => {
-                        articles += entry.qty;
+                        articles += entry.quantity;
 
                         //get article price from BE
-                        makeCall("GET", "/price?article_id=" + entry.article_id + "&seller_id=" + seller, null, (resp) => {
+                        makeCall("GET", "/price?article_id=" + entry.id + "&seller_id=" + seller, null, (resp) => {
                             if (resp.status === 200) {
                                 let article_price = JSON.parse(resp.responseText).price;
                                 entry.price = article_price;
-                                articles_price += entry.price * entry.qty;
+                                articles_price += entry.price * entry.quantity;
                             } else {
                                 self.update(null, "Request reported status " + resp.status);
                             }
@@ -656,7 +655,7 @@
                                 b3.textContent = "Qty: ";
                                 div3 = document.createElement("div");
                                 div3.appendChild(b2);
-                                div3.appendChild(document.createTextNode(art.qty));
+                                div3.appendChild(document.createTextNode(art.quantity));
                                 div3.appendChild(document.createTextNode("€"));
                                 item_data.appendChild(div3);
 
@@ -708,7 +707,25 @@
                             input_button.className = "btn btn-large btn-blue btn-primary";
                             input_button.type = "button";
                             input_button.value = "Order";
-                            //TODO add event listener
+
+                            input_button.addEventListener("click", (e) => {
+                                var data = new FormData();
+                                data.append("seller_id", seller.id);
+                                data.append("articles", articles_input.value);
+                                console.log("articles: " + articles_input.value);
+                                console.log("seller: " + seller.id);
+                                makeCall("POST", "order", data, (resp) => {
+                                    if (resp.status === 200) {
+                                        articleList.hide();
+                                        searchComponent.hide();
+                                        cartComponent.hide();
+                                        orderList.show();
+                                    } else {
+                                        self.update(null, "Request reported status " + resp.status);
+                                    }
+                                });
+                            });
+
                             order_form.appendChild(input_button);
                             item.appendChild(order_form);
 
@@ -726,24 +743,26 @@
     }
 
 
-    function popupWindow(hoverableElementId, popupTagPosition) {
+    function popupWindow(hoverableElementId, popupTagPosition, sellerId) {
         let popup = {
-            open : function () {
+            open: function () {
                 if (this.element == null) {
-                    // create new div element to be our popup and store it in the popup object
                     this.element = document.createElement('div');
                     this.element.id = "popup" + hoverableElementId;
-                    // you don't need a full html document here. Just the stuff you were putting in the <body> tag before
-                    this.element.innerHTML = "<h1>" + this.element.id + "</h1>";
-                    // Some bare minimum styles to make this work as a popup. Would be better in a stylesheet
-                    //this.element.style = "position: absolute; top: 50px; right: 50px; width: 300px; height: 300px; background-color: #fff;";
-                    this.element.className = "blue-div";
+                    this.element.className = "article-div";
                 }
-                // Add it to your <body> tag
+                // show products in cart of the seller hovered
+                let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
+                this.element.innerHTML = "";
+                if (cart !== null && cart !== undefined && cart.length !== 0) {
+                    let seller_entry = cart[sellerId];
+                    if (seller_entry !== null && seller_entry !== undefined && seller_entry.length !== 0) {
+                        // TODO
+                    }
+                }
                 popupTagPosition.appendChild(this.element);
-                // call whatever setup functions you were calling before
             },
-            close : function () {
+            close: function () {
                 // get rid of the popup
                 popupTagPosition.removeChild(this.element);
                 // any other code you want
