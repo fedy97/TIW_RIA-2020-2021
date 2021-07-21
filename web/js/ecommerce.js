@@ -692,7 +692,7 @@
                             let seller_input = document.createElement("input");
                             seller_input.name = "seller_id";
                             seller_input.type = "hidden";
-                            seller_input.value = seller.id;
+                            seller_input.value = seller;
                             seller_input.required = true;
                             order_form.appendChild(seller_input);
 
@@ -707,13 +707,12 @@
                             input_button.className = "btn btn-large btn-blue btn-primary";
                             input_button.type = "button";
                             input_button.value = "Order";
-
                             input_button.addEventListener("click", (e) => {
                                 var data = new FormData();
-                                data.append("seller_id", seller.id);
+                                data.append("seller_id", seller);
                                 data.append("articles", articles_input.value);
                                 console.log("articles: " + articles_input.value);
-                                console.log("seller: " + seller.id);
+                                console.log("seller: " + seller);
                                 makeCall("POST", "order", data, (resp) => {
                                     if (resp.status === 200) {
                                         articleList.hide();
