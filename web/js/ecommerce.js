@@ -496,27 +496,32 @@
                                 if (add_form.checkValidity()) {
                                     cart = JSON.parse(localStorage.getItem("cart_" + sessionStorage.getItem("username")));
                                     if (cart !== null && cart !== undefined && cart.length !== 0) {
-                                        seller_entry = cart[input_seller.value];
+                                        seller_entry = cart[seller.sellerId];
                                         if (seller_entry !== null && seller_entry !== undefined && seller_entry.length !== 0) {
                                             article_entry = seller_entry.articles.filter(article => article.id === input_article.value);
+                                            console.log(article_entry);
                                             if (article_entry.length !== 0) {
-                                                article_entry[0].quantity += input_qty.value;
+                                                console.log("adding qty to existing article");
+                                                article_entry[0].quantity = (parseInt(article_entry[0].quantity) + parseInt(input_qty.value)).toString();
                                             } else {
-                                                article_entry[0].quantity = input_qty;
+                                                console.log("new article in cart")
+                                                seller_entry.articles.push({quantity: input_qty.value, id: input_article.value});
                                             }
                                         } else {
-                                            cart[input_seller.value] = {};
-                                            cart[input_seller.value].articles = [];
-                                            cart[input_seller.value].articles.push({
+                                            console.log("empty seller");
+                                            cart[seller.sellerId] = {};
+                                            cart[seller.sellerId].articles = [];
+                                            cart[seller.sellerId].articles.push({
                                                 id: input_article.value,
                                                 quantity: input_qty.value
                                             });
                                         }
                                     } else {
+                                        console.log("empty cart");
                                         cart = {};
-                                        cart[input_seller.value] = {};
-                                        cart[input_seller.value].articles = [];
-                                        cart[input_seller.value].articles.push({
+                                        cart[seller.sellerId] = {};
+                                        cart[seller.sellerId].articles = [];
+                                        cart[seller.sellerId].articles.push({
                                             id: input_article.value,
                                             quantity: input_qty.value
                                         });
@@ -568,8 +573,9 @@
             for (let seller in cart) {
                 if (Object.prototype.hasOwnProperty.call(cart, seller)) {
                     let articles = 0;
+                    console.log(cart);
                     cart[seller].articles.forEach(entry => {
-                        articles += entry.quantity;
+                        articles += parseInt(entry.quantity);
 
                         //get article price from BE
                         makeCall("GET", "/price?article_id=" + entry.id + "&seller_id=" + seller, null, (resp) => {
@@ -584,7 +590,7 @@
                     });
 
                     //get article price from BE
-                    makeCall("GET", "/shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
+                    makeCall("GET", "shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
                         if (resp.status === 200) {
                             shipping_price = JSON.parse(resp.responseText).price;
                         } else {

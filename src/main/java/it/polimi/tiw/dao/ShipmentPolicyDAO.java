@@ -21,8 +21,7 @@ public class ShipmentPolicyDAO {
     }
 
     public Optional<ShippingPolicyBean> findPolicyByQty(String sellerId, Integer qty) throws SQLException {
-
-        String query = "SELECT * FROM shipping_policy WHERE seller_id=:seller_id AND :qty >= min_item AND :qty < coalesce(max_item, 99999999999)";
+        String query = "SELECT * FROM shipping_policy WHERE seller_id=:seller_id AND :qty >= min_item AND :qty <= coalesce(max_item, 99999999999)";
         Map<String, Object> queryParam = new HashMap<>();
         queryParam.put("seller_id", sellerId);
         queryParam.put("qty", qty);
