@@ -464,7 +464,8 @@
                         add_form.method = "POST";
 
                         let article_input = document.createElement("input");
-                        article_input.name = "article_id";
+                        article_input.name = "article" + _article.id;
+                        article_input.id = "article" + _article.id + seller.sellerId;
                         article_input.type = "hidden";
                         article_input.value = _article.id;
                         article_input.required = true;
@@ -480,7 +481,7 @@
 
                         let form_group = document.createElement("div");
                         form_group.className = "form-group";
-                        form_group.innerHTML = '<div class="form-group"><label for="article_qty">Qty</label><input  id="article_qty" type="number" name="article_qty" value="1" min="1" step="1" required/></div>';
+                        form_group.innerHTML = '<div class="form-group"><label for="article_qty">Qty</label><input id="qty' + _article.id + seller.sellerId + '" type="number" name="qty' + _article.id + '" value="1" min="1" step="1" required/></div>';
                         add_form.appendChild(form_group);
 
                         let input_button = document.createElement("input");
@@ -490,22 +491,25 @@
 
                         input_button.addEventListener("click", (e) => {
                                 let cart, seller_entry, article_entry;
-                                let input_seller = add_form.querySelector("input[name='seller_id']");
-                                let input_article = add_form.querySelector("input[name='article_id']");
-                                let input_qty = add_form.querySelector("input[name='article_qty']");
+                                //let input_seller = add_form.querySelector("input[name='seller_id']");
+                                let input_article = document.getElementById("article" + _article.id + seller.sellerId);
+                                let input_qty = document.getElementById("qty" + _article.id + seller.sellerId);
                                 if (add_form.checkValidity()) {
                                     cart = JSON.parse(localStorage.getItem("cart_" + sessionStorage.getItem("username")));
                                     if (cart !== null && cart !== undefined && cart.length !== 0) {
                                         seller_entry = cart[seller.sellerId];
                                         if (seller_entry !== null && seller_entry !== undefined && seller_entry.length !== 0) {
                                             article_entry = seller_entry.articles.filter(article => article.id === input_article.value);
-                                            console.log(article_entry);
                                             if (article_entry.length !== 0) {
                                                 console.log("adding qty to existing article");
                                                 article_entry[0].quantity = (parseInt(article_entry[0].quantity) + parseInt(input_qty.value)).toString();
                                             } else {
                                                 console.log("new article in cart")
-                                                seller_entry.articles.push({quantity: input_qty.value, id: input_article.value});
+                                                seller_entry.articles.push({
+                                                    quantity: input_qty.value,
+                                                    id: input_article.value,
+                                                    name: _article.name
+                                                });
                                             }
                                         } else {
                                             console.log("empty seller");
@@ -513,7 +517,8 @@
                                             cart[seller.sellerId].articles = [];
                                             cart[seller.sellerId].articles.push({
                                                 id: input_article.value,
-                                                quantity: input_qty.value
+                                                quantity: input_qty.value,
+                                                name: _article.name
                                             });
                                         }
                                     } else {
@@ -523,7 +528,8 @@
                                         cart[seller.sellerId].articles = [];
                                         cart[seller.sellerId].articles.push({
                                             id: input_article.value,
-                                            quantity: input_qty.value
+                                            quantity: input_qty.value,
+                                            name: _article.name
                                         });
                                     }
 
@@ -563,7 +569,7 @@
         this.show = function () {
             //Request and update with the results
             let shipping_price = 0;
-            let articles_price = 0;
+            let articles_price = 0.0;
             let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
             if (cart === null || cart === undefined)
                 cart = {};
@@ -573,16 +579,15 @@
             for (let seller in cart) {
                 if (Object.prototype.hasOwnProperty.call(cart, seller)) {
                     let articles = 0;
-                    console.log(cart);
                     cart[seller].articles.forEach(entry => {
                         articles += parseInt(entry.quantity);
 
                         //get article price from BE
                         makeCall("GET", "/price?article_id=" + entry.id + "&seller_id=" + seller, null, (resp) => {
                             if (resp.status === 200) {
-                                let article_price = JSON.parse(resp.responseText).price;
-                                entry.price = article_price;
-                                articles_price += entry.price * entry.quantity;
+                                entry.price = JSON.parse(resp.responseText).price;
+                                articles_price += parseFloat(entry.price) * parseFloat(entry.quantity);
+                                cart[seller].articles_price = articles_price.toFixed(2);
                             } else {
                                 self.update(null, "Request reported status " + resp.status);
                             }
@@ -592,18 +597,16 @@
                     //get article price from BE
                     makeCall("GET", "shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
                         if (resp.status === 200) {
-                            shipping_price = JSON.parse(resp.responseText).price;
+                            shipping_price = JSON.parse(resp.responseText).shipCost;
+                            cart[seller].shipping_price = shipping_price;
                         } else {
                             self.update(null, "Request reported status " + resp.status);
                         }
                     });//get details
-
-                    cart[seller].articles_price = articles_price;
-                    cart[seller].shipping_price = shipping_price;
                 }
             }
+            setTimeout(() => {  self.update(cart); }, 500);
 
-            self.update(cart);
 
         };
 
@@ -638,7 +641,6 @@
 
 
                             _cart[seller].articles.forEach(art => {
-
                                 item_data = document.createElement("div");
                                 item_data.className = "item-data";
 
@@ -660,9 +662,8 @@
                                 b3 = document.createElement("b");
                                 b3.textContent = "Qty: ";
                                 div3 = document.createElement("div");
-                                div3.appendChild(b2);
+                                div3.appendChild(b3);
                                 div3.appendChild(document.createTextNode(art.quantity));
-                                div3.appendChild(document.createTextNode("€"));
                                 item_data.appendChild(div3);
 
 
@@ -678,6 +679,7 @@
                             div1 = document.createElement("div");
                             div1.appendChild(b1);
                             div1.appendChild(document.createTextNode(_cart[seller].articles_price));
+                            div1.appendChild(document.createTextNode("€"));
                             item_data.appendChild(div1);
 
                             b2 = document.createElement("b");
@@ -724,6 +726,10 @@
                                         articleList.hide();
                                         searchComponent.hide();
                                         cartComponent.hide();
+                                        let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
+                                        let map = JSON.parse(cart);
+                                        delete map[seller];
+                                        localStorage.setItem("cart_" + sessionStorage.getItem("username"), JSON.stringify(map));
                                         orderList.show();
                                     } else {
                                         self.update(null, "Request reported status " + resp.status);
@@ -757,7 +763,7 @@
                     this.element.className = "article-div";
                 }
                 // show products in cart of the seller hovered
-                let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
+                let cart = JSON.parse(localStorage.getItem("cart_" + sessionStorage.getItem("username")));
                 this.element.innerHTML = "";
                 if (cart !== null && cart !== undefined && cart.length !== 0) {
                     let seller_entry = cart[sellerId];
