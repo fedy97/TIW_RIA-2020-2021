@@ -414,8 +414,8 @@
                     self.article_div.appendChild(article_data);
                     self.article_div.appendChild(document.createElement("br"));
 
-                    let item, item_data, seller_name, seller_price, seller_rating, seller_threshold, add_form;
-
+                    let item, item_data, seller_name, seller_price, seller_rating, seller_threshold, add_form,
+                        seller_items;
                     _article.sellers.forEach((seller) => {
                         item = document.createElement("div");
                         item.className = "item item-blue";
@@ -457,7 +457,21 @@
                         seller_threshold.innerHTML = "Free shipping for orders greater than <b>" + seller.priceThreshold + "</b><b>&#8364;</b>";
                         item.appendChild(seller_threshold);
 
-                        //TODO existing article
+                        seller_items = document.createElement("div");
+                        seller_items.id = "seller_cart" + seller.sellerId + _article.id;
+                        let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
+                        if (cart === null) cart = {};
+                        else
+                            cart = JSON.parse(cart);
+                        let message;
+                        if (cart[seller.sellerId] === null || cart[seller.sellerId] === undefined)
+                            message = "You do not have articles of this seller in your cart yet";
+                        else {
+                            let articles = cart[seller.sellerId].articles;
+                            message = "You have already " + articles.length + " items of this seller in the cart";
+                        }
+                        seller_items.innerHTML = message;
+                        item.appendChild(seller_items);
 
                         add_form = document.createElement("form");
                         add_form.className = "add-article-form";
@@ -541,10 +555,9 @@
                         );
 
                         add_form.appendChild(input_button);
-                        //popupWindow(seller_name.id, item);
                         item.appendChild(add_form);
                         self.article_div.appendChild(item);
-
+                        popupWindow("seller_cart" + seller.sellerId + _article.id, seller_items, seller.sellerId);
                     });
                     self.article_div.style.display = "block";
 
@@ -605,7 +618,9 @@
                     });//get details
                 }
             }
-            setTimeout(() => {  self.update(cart); }, 500);
+            setTimeout(() => {
+                self.update(cart);
+            }, 500);
 
 
         };
@@ -759,15 +774,38 @@
                 if (this.element == null) {
                     this.element = document.createElement('div');
                     this.element.id = "popup" + hoverableElementId;
-                    this.element.className = "article-div";
+                    this.element.className = "blue-div";
                 }
+                this.element.innerHTML = "";
                 // show products in cart of the seller hovered
                 let cart = JSON.parse(localStorage.getItem("cart_" + sessionStorage.getItem("username")));
-                this.element.innerHTML = "";
                 if (cart !== null && cart !== undefined && cart.length !== 0) {
                     let seller_entry = cart[sellerId];
                     if (seller_entry !== null && seller_entry !== undefined && seller_entry.length !== 0) {
-                        // TODO
+                        let articles = seller_entry.articles;
+                        articles.forEach((article) => {
+                            let item_data = document.createElement("div");
+                            item_data.className = "item-data";
+
+                            let b1 = document.createElement("b");
+                            b1.textContent = "Name: ";
+                            let div1 = document.createElement("div");
+                            div1.appendChild(b1);
+                            div1.appendChild(document.createTextNode(article.name));
+                            item_data.appendChild(div1);
+
+                            let b3 = document.createElement("b");
+                            b3.textContent = "Qty: ";
+                            let div3 = document.createElement("div");
+                            div3.appendChild(b3);
+                            div3.appendChild(document.createTextNode(article.quantity));
+                            item_data.appendChild(div3);
+
+                            item_data.appendChild(document.createElement("hr"));
+                            this.element.appendChild(item_data);
+                        });
+                    } else {
+                        this.element.innerHTML = "Your cart does not contain items from this seller";
                     }
                 }
                 popupTagPosition.appendChild(this.element);
