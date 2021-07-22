@@ -12,11 +12,11 @@ import javax.servlet.http.HttpSession;
 import it.polimi.tiw.utils.GenericServlet;
 
 @WebServlet("/logout")
-public class Logout extends GenericServlet {
+public class LogoutController extends GenericServlet {
 
     private static final long serialVersionUID = 1L;
 
-    public Logout() {
+    public LogoutController() {
 
         super();
     }
