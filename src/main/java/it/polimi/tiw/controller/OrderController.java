@@ -1,21 +1,6 @@
 
 package it.polimi.tiw.controller;
 
-import com.google.gson.Gson;
-import it.polimi.tiw.bean.*;
-import it.polimi.tiw.dao.ArticleDAO;
-import it.polimi.tiw.dao.OrderDAO;
-import it.polimi.tiw.dao.SellerDAO;
-import it.polimi.tiw.dao.ShipmentPolicyDAO;
-import it.polimi.tiw.utils.GenericServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -23,7 +8,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+
+import it.polimi.tiw.bean.*;
+import it.polimi.tiw.dao.ArticleDAO;
+import it.polimi.tiw.dao.OrderDAO;
+import it.polimi.tiw.dao.SellerDAO;
+import it.polimi.tiw.dao.ShipmentPolicyDAO;
+import it.polimi.tiw.utils.GenericServlet;
 
 @WebServlet("/order")
 @MultipartConfig
@@ -86,7 +88,7 @@ public class OrderController extends GenericServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws  IOException {
 
         Optional<UserBean> user = getUserData(request);
         if (!user.isPresent()) {

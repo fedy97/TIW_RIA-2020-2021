@@ -639,7 +639,6 @@
                             item_title.textContent = _cart[seller].name;
                             item.appendChild(item_title);
 
-
                             _cart[seller].articles.forEach(art => {
                                 item_data = document.createElement("div");
                                 item_data.className = "item-data";
