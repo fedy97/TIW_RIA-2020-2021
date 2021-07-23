@@ -1,5 +1,5 @@
-//Create and init object
-var loadingModal = new LoadingModal(document.getElementById("loading_msg"));
+
+let loadingModal = new LoadingModal(document.getElementById("loading_msg"));
 
 function LoadingModal(loading_msg) {
     this.loading_msg = loading_msg;
@@ -20,23 +20,6 @@ function LoadingModal(loading_msg) {
     };
 }
 
-(function () {
-    var forms = document.getElementsByTagName("form");
-    Array.from(forms).forEach(form => {
-        var input_fields = form.querySelectorAll('input:not([type="button"]):not([type="hidden"])');
-        var button = form.querySelector('input[type="button"]');
-        Array.from(input_fields).forEach(input => {
-            input.addEventListener("keydown", (e) => {
-                if (e.keyCode == 13) {
-                    e.preventDefault();
-                    let click = new Event("click");
-                    button.dispatchEvent(click);
-                }
-            });
-        });
-    });
-})();
-
 function makeCall(method, relativeUrl, form, done_callback, reset = true) {
     let req = new XMLHttpRequest(); //Create new request
     //Init request
@@ -54,11 +37,10 @@ function makeCall(method, relativeUrl, form, done_callback, reset = true) {
                 break;
             case XMLHttpRequest.DONE:
                 loadingModal.update("Request completed");
-                if (req.status == 401) //Unauthorized
+                if (req.status === 401 && !window.location.href.endsWith("login.html")) //Unauthorized
                     window.location.href = "login.html";
-                if (checkRedirect(relativeUrl, req.responseURL)) { //Redirect if needed
-                    done_callback(req);
-                }
+                done_callback(req);
+
                 setTimeout(function () {
                     loadingModal.hide();
                 }, 500);
@@ -72,59 +54,19 @@ function makeCall(method, relativeUrl, form, done_callback, reset = true) {
     //Send request
     console.log(form);
     if (form == null) {
-        req.send(); //Send empty if no form provided
+        req.send();
     } else if (form instanceof FormData) {
-        req.send(form); //Send already serialized form
+        req.send(form);
     } else {
         console.log(new FormData(form));
         req.send(new FormData(form)); //Send serialized form
     }
-    //Eventually reset form (if provided)
+
     if (form !== undefined && form !== null && !(form instanceof FormData) && reset === true) {
         form.reset(); //Do not touch hidden fields, and restore default values if any
     }
 }
 
-
-function checkRedirect(requestURL, responseURL) {
-    if (responseURL) {
-        let actualRequestURL = relPathToAbs(requestURL);
-        // if (actualRequestURL != responseURL){ //Url changed
-        //     window.location.assign(responseURL); //Navigate to the url
-        //     return false;
-        // }
-        return true; //Pass the request to callback
-    }
-    //Else is CORS blocked or redirection loop 
-    console.error("Invalid AJAX call");
-    return false;
-}
-
-
-function relPathToAbs(relative) {
-    let stack = window.location.href.split("/"),
-        parts = relative.split("/");
-    stack.pop(); // remove current file name (or empty string)
-    for (let i = 0; i < parts.length; i++) {
-        if (parts[i] == ".")
-            continue;
-        if (parts[i] == "..")
-            stack.pop(); //One directory back
-        else
-            stack.push(parts[i]); //Add to path
-    }
-    return stack.join("/"); //Join everything
-}
-
 function toCurrencyFormat(number) {
     return parseFloat(number).toFixed(2);
-}
-
-
-Array.prototype.contains = function (element) {
-    for (let i = 0; i < this.length; i++)
-        if (this[i] == element)
-            return true;
-
-    return false;
 }

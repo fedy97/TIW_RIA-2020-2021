@@ -22,7 +22,13 @@
                     window.location.href = "home.html";
                     break;
                 case 400: // bad request
-                case 401: // unauthorized
+                    error_div.textContent = "Malformed inputs";
+                    error_div.style.display = 'block';
+                    break;
+                case 401:  //unauthorized
+                    error_div.textContent = "Invalid credentials";
+                    error_div.style.display = 'block';
+                    break;
                 case 500: // server error
                     error_div.textContent = resp.responseText;
                     error_div.style.display = 'block';
@@ -31,7 +37,7 @@
                     error_div.textContent = "Request reported status " + resp.status;
                     error_div.style.display = 'block';
             }
-        });
+        }, false);
     }
 })();
 
