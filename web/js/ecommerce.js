@@ -1,5 +1,5 @@
 (function () {
-    //Vars
+
     let menu, articleList, articleDetails, orderList, searchComponent, cartComponent;
 
     let pageOrchestrator = new PageOrchestrator();
@@ -186,11 +186,11 @@
                         let td1 = document.createElement("td");
                         td1.textContent = order.sellerName;
                         let td2 = document.createElement("td");
-                        td2.textContent = order.priceArticles + " €";
+                        td2.textContent = toCurrencyFormat(order.priceArticles) + " €";
                         let td3 = document.createElement("td");
-                        td3.textContent = order.priceShipment + " €";
+                        td3.textContent = toCurrencyFormat(order.priceShipment) + " €";
                         let td4 = document.createElement("td");
-                        td4.textContent = order.priceTotal + " €";
+                        td4.textContent = toCurrencyFormat(order.priceTotal) + " €";
                         let td5 = document.createElement("td");
                         td5.textContent = order.orderDate;
                         let td6 = document.createElement("td");
@@ -221,7 +221,7 @@
                             let td9 = document.createElement("td");
                             td9.textContent = articles[i].quantity;
                             let td10 = document.createElement("td");
-                            td10.textContent = articles[i].price + " €";
+                            td10.textContent = toCurrencyFormat(articles[i].price) + " €";
                             table.appendChild(tr3);
                             tr3.appendChild(td8);
                             tr3.appendChild(td9);
@@ -314,7 +314,7 @@
                             b2.textContent = "Min price: ";
                             div2 = document.createElement("div");
                             div2.appendChild(b2);
-                            div2.appendChild(document.createTextNode(art.price));
+                            div2.appendChild(document.createTextNode(toCurrencyFormat(art.price)));
                             div2.appendChild(document.createTextNode("€"));
                             item_data.appendChild(div2);
 
@@ -429,7 +429,7 @@
 
 
                         seller_price = document.createElement("div");
-                        seller_price.innerHTML = "<div><b> Price: </b><span>" + seller.price + "</span><span>&#8364;</span></div>";
+                        seller_price.innerHTML = "<div><b> Price: </b><span>" + toCurrencyFormat(seller.price) + "</span><span>&#8364;</span></div>";
                         item_data.appendChild(seller_price);
 
                         seller_rating = document.createElement("div");
@@ -454,7 +454,7 @@
                         });
 
                         seller_threshold = document.createElement("div");
-                        seller_threshold.innerHTML = "Free shipping for orders greater than <b>" + seller.priceThreshold + "</b><b>&#8364;</b>";
+                        seller_threshold.innerHTML = "Free shipping for orders greater than <b>" + toCurrencyFormat(seller.priceThreshold) + "</b><b>&#8364;</b>";
                         item.appendChild(seller_threshold);
 
                         seller_items = document.createElement("div");
@@ -528,10 +528,13 @@
                                         } else {
                                             console.log("empty seller");
                                             cart[seller.sellerId] = {};
+                                            cart[seller.sellerId].price_threshold = parseFloat(seller.priceThreshold);
+                                            cart[seller.sellerId].seller_name = seller.sellerName;
                                             cart[seller.sellerId].articles = [];
                                             cart[seller.sellerId].articles.push({
                                                 id: input_article.value,
                                                 quantity: input_qty.value,
+                                                price: seller.price,
                                                 name: _article.name
                                             });
                                         }
@@ -539,10 +542,13 @@
                                         console.log("empty cart");
                                         cart = {};
                                         cart[seller.sellerId] = {};
+                                        cart[seller.sellerId].price_threshold = parseFloat(seller.priceThreshold);
+                                        cart[seller.sellerId].seller_name = seller.sellerName;
                                         cart[seller.sellerId].articles = [];
                                         cart[seller.sellerId].articles.push({
                                             id: input_article.value,
                                             quantity: input_qty.value,
+                                            price: seller.price,
                                             name: _article.name
                                         });
                                     }
@@ -594,24 +600,15 @@
                     let articles = 0;
                     cart[seller].articles.forEach(entry => {
                         articles += parseInt(entry.quantity);
-
-                        //get article price from BE
-                        makeCall("GET", "/price?article_id=" + entry.id + "&seller_id=" + seller, null, (resp) => {
-                            if (resp.status === 200) {
-                                entry.price = JSON.parse(resp.responseText).price;
-                                articles_price += parseFloat(entry.price) * parseFloat(entry.quantity);
-                                cart[seller].articles_price = articles_price.toFixed(2);
-                            } else {
-                                self.update(null, "Request reported status " + resp.status);
-                            }
-                        });
+                        articles_price += parseFloat(entry.price) * parseFloat(entry.quantity);
+                        cart[seller].articles_price = toCurrencyFormat(articles_price);
                     });
 
                     //get article price from BE
                     makeCall("GET", "shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
                         if (resp.status === 200) {
                             shipping_price = JSON.parse(resp.responseText).shipCost;
-                            cart[seller].shipping_price = shipping_price;
+                            cart[seller].shipping_price = articles_price < cart[seller].price_threshold ? toCurrencyFormat(shipping_price) : toCurrencyFormat("0");
                         } else {
                             self.update(null, "Request reported status " + resp.status);
                         }
@@ -651,7 +648,7 @@
                             item.className = "item item-blue";
                             item_title = document.createElement("div");
                             item_title.className = "item-title";
-                            item_title.textContent = _cart[seller].name;
+                            item_title.textContent = _cart[seller].seller_name;
                             item.appendChild(item_title);
 
                             _cart[seller].articles.forEach(art => {
@@ -669,7 +666,7 @@
                                 b2.textContent = "Price: ";
                                 div2 = document.createElement("div");
                                 div2.appendChild(b2);
-                                div2.appendChild(document.createTextNode(art.price));
+                                div2.appendChild(document.createTextNode(toCurrencyFormat(art.price)));
                                 div2.appendChild(document.createTextNode("€"));
                                 item_data.appendChild(div2);
 
@@ -692,7 +689,7 @@
                             b1.textContent = "Articles cost: ";
                             div1 = document.createElement("div");
                             div1.appendChild(b1);
-                            div1.appendChild(document.createTextNode(_cart[seller].articles_price));
+                            div1.appendChild(document.createTextNode(toCurrencyFormat(_cart[seller].articles_price)));
                             div1.appendChild(document.createTextNode("€"));
                             item_data.appendChild(div1);
 
@@ -700,7 +697,7 @@
                             b2.textContent = "Shipping cost: ";
                             div2 = document.createElement("div");
                             div2.appendChild(b2);
-                            div2.appendChild(document.createTextNode(_cart[seller].shipping_price));
+                            div2.appendChild(document.createTextNode(toCurrencyFormat(_cart[seller].shipping_price)));
                             div2.appendChild(document.createTextNode("€"));
                             item_data.appendChild(div2);
 

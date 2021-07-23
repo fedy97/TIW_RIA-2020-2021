@@ -53,6 +53,8 @@ public class ShippingPolicyController extends GenericServlet {
             return;
         }
 
+        //TODO control threshold
+
         try {
             Optional<ShippingPolicyBean> shippingPolicyBean = new ShipmentPolicyDAO(connection)
                     .findPolicyByQty(sellerId, Integer.parseInt(qty));
@@ -65,6 +67,5 @@ public class ShippingPolicyController extends GenericServlet {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
                     "Something went wrong when searching the specified articles");
         }
-
     }
 }

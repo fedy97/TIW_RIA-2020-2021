@@ -1,6 +1,3 @@
-/**
- * Login management
- */
 (function() {
     //Link graphics
     var login_button = document.getElementById("login_button");
