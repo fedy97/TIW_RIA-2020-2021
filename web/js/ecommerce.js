@@ -459,6 +459,7 @@
 
                         seller_items = document.createElement("div");
                         seller_items.id = "seller_cart" + seller.sellerId + _article.id;
+                        seller_items.style = "text-decoration: underline";
                         let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
                         if (cart === null) cart = {};
                         else
