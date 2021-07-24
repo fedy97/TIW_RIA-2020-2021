@@ -522,6 +522,7 @@
                                                 seller_entry.articles.push({
                                                     quantity: input_qty.value,
                                                     id: input_article.value,
+                                                    price: seller.price,
                                                     name: _article.name
                                                 });
                                             }
