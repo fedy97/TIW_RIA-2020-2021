@@ -52,7 +52,7 @@ public class ArticleController extends GenericServlet {
 
         String articleId;
         try {
-            articleId = StringEscapeUtils.escapeJava(req.getParameter(ARTICLE_ID_ATTRIBUTE));
+            articleId = escapeSQL(req.getParameter(ARTICLE_ID_ATTRIBUTE));
         } catch (Exception e) {
             log.error("Something went wrong when extracting search hint parameters. Cause is {}", e.getMessage());
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed or missing parameters");

@@ -45,7 +45,7 @@ public class SearchController extends GenericServlet {
 
         String keyword;
         try {
-            keyword = StringEscapeUtils.escapeJava(req.getParameter(HINT_ATTRIBUTE));
+            keyword = escapeSQL(req.getParameter(HINT_ATTRIBUTE));
         } catch (Exception e) {
             log.error("Something went wrong when extracting search hint parameters. Cause is {}", e.getMessage());
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed parameters");

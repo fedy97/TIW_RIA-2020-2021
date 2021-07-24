@@ -80,4 +80,9 @@ public class GenericServlet extends HttpServlet {
         response.getWriter().println(json);
     }
 
+    protected String escapeSQL(String sql) {
+
+        return sql == null ? null : sql.replace("'", "\"").replace(";", "");
+    }
+
 }

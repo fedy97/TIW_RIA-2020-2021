@@ -54,7 +54,7 @@ public class OrderController extends GenericServlet {
         String userId = user.get().getId();
 
         try {
-            orderId = req.getParameter("order-id");
+            orderId = escapeSQL(req.getParameter("order-id"));
         } catch (NumberFormatException | NullPointerException e) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
             return;

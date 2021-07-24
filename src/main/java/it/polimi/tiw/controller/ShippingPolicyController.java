@@ -8,7 +8,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,8 @@ import it.polimi.tiw.utils.GenericServlet;
 @WebServlet("/shipping")
 public class ShippingPolicyController extends GenericServlet {
 
-    private static final Logger log                 = LoggerFactory.getLogger(PriceController.class.getSimpleName());
+    private static final Logger log                 = LoggerFactory
+            .getLogger(ShippingPolicyController.class.getSimpleName());
 
     private static final String QTY_ATTRIBUTE       = "qty";
     private static final String SELLER_ID_ATTRIBUTE = "seller_id";
@@ -45,15 +45,15 @@ public class ShippingPolicyController extends GenericServlet {
         String qty;
         String sellerId;
         try {
-            qty = StringEscapeUtils.escapeJava(req.getParameter(QTY_ATTRIBUTE));
-            sellerId = StringEscapeUtils.escapeJava(req.getParameter(SELLER_ID_ATTRIBUTE));
+            qty = escapeSQL(req.getParameter(QTY_ATTRIBUTE));
+            sellerId = escapeSQL(req.getParameter(SELLER_ID_ATTRIBUTE));
         } catch (Exception e) {
             log.error("Something went wrong when extracting parameters. Cause is {}", e.getMessage());
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed or missing parameters");
             return;
         }
 
-        //TODO control threshold
+        // TODO control threshold
 
         try {
             Optional<ShippingPolicyBean> shippingPolicyBean = new ShipmentPolicyDAO(connection)

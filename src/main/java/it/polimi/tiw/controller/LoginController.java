@@ -42,8 +42,8 @@ public class LoginController extends GenericServlet {
         String usrn;
         String pwd;
         try {
-            usrn = StringEscapeUtils.escapeJava(request.getParameter(USER_PARAM));
-            pwd = StringEscapeUtils.escapeJava(request.getParameter(PWD_PARAM));
+            usrn = escapeSQL(request.getParameter(USER_PARAM));
+            pwd = escapeSQL(request.getParameter(PWD_PARAM));
 
             if (StringUtils.isBlank(usrn) || StringUtils.isBlank(pwd)) {
                 throw new Exception("Missing or empty credential value");

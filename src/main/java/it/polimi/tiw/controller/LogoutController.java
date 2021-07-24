@@ -32,7 +32,7 @@ public class LogoutController extends GenericServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
 
         doGet(request, response);
     }
