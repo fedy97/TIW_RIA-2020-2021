@@ -1,7 +1,3 @@
-/*
-    Loading div
-*/
-
 body.loading .loading-div{
     display: flex;
     flex-direction: row;
