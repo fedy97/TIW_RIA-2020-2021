@@ -582,9 +582,9 @@
             }
 
             this.addPolices = function (seller, cart) {
-                cart[seller.sellerId].polices = [];
+                cart[seller.sellerId].policies = [];
                 seller.shippingPolicies.forEach((policy) => {
-                    cart[seller.sellerId].polices.push({
+                    cart[seller.sellerId].policies.push({
                         "maxItem": policy.maxItem,
                         "minItem": policy.minItem,
                         "shipCost": policy.shipCost
@@ -604,7 +604,6 @@
 
         this.show = function () {
             //Request and update with the results
-            let shipping_price = 0;
             let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
             if (cart === null || cart === undefined)
                 cart = {};
@@ -646,7 +645,7 @@
                 return toCurrencyFormat("0");
             }
             let res = "9999";
-            cart[seller].polices.forEach((policy) => {
+            cart[seller].policies.forEach((policy) => {
                 if ((qty >= parseInt(policy.minItem) && policy.maxItem === undefined) || (qty >= parseInt(policy.minItem) && qty <= parseInt(policy.maxItem))) {
                     res = toCurrencyFormat(policy.shipCost);
                 }
