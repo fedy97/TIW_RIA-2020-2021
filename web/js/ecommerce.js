@@ -565,6 +565,7 @@
                         add_form.appendChild(input_button);
                         item.appendChild(add_form);
                         self.article_div.appendChild(item);
+                        if (cart[seller.sellerId] !== undefined && cart[seller.sellerId].articles !== undefined && cart[seller.sellerId].articles !== 0)
                         popupWindow("seller_cart" + seller.sellerId + _article.id, seller_items, seller.sellerId);
                     });
                     self.article_div.style.display = "block";
@@ -605,7 +606,7 @@
                         articles_price += parseFloat(entry.price) * parseFloat(entry.quantity);
                         cart[seller].articles_price = toCurrencyFormat(articles_price);
                     });
-
+                    articles_price = 0.0;
                     //get article price from BE
                     makeCall("GET", "shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
                         if (resp.status === 200) {
