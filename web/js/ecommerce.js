@@ -520,12 +520,12 @@
                                                 article_entry[0].quantity = (parseInt(article_entry[0].quantity) + parseInt(input_qty.value)).toString();
                                             } else {
                                                 console.log("new article in cart")
-                                                seller_entry.articles.push({
-                                                    quantity: input_qty.value,
-                                                    id: input_article.value,
-                                                    price: seller.price,
-                                                    name: _article.name
-                                                });
+                                                seller_entry.articles.push(new Article(
+                                                    input_article.value,
+                                                    input_qty.value,
+                                                    seller.price,
+                                                    _article.name
+                                                ));
                                             }
                                         } else {
                                             console.log("empty seller");
@@ -533,12 +533,12 @@
                                             cart[seller.sellerId].price_threshold = parseFloat(seller.priceThreshold);
                                             cart[seller.sellerId].seller_name = seller.sellerName;
                                             cart[seller.sellerId].articles = [];
-                                            cart[seller.sellerId].articles.push({
-                                                id: input_article.value,
-                                                quantity: input_qty.value,
-                                                price: seller.price,
-                                                name: _article.name
-                                            });
+                                            cart[seller.sellerId].articles.push(new Article(
+                                                input_article.value,
+                                                input_qty.value,
+                                                seller.price,
+                                                _article.name
+                                            ));
                                         }
                                     } else {
                                         console.log("empty cart");
@@ -547,12 +547,12 @@
                                         cart[seller.sellerId].price_threshold = parseFloat(seller.priceThreshold);
                                         cart[seller.sellerId].seller_name = seller.sellerName;
                                         cart[seller.sellerId].articles = [];
-                                        cart[seller.sellerId].articles.push({
-                                            id: input_article.value,
-                                            quantity: input_qty.value,
-                                            price: seller.price,
-                                            name: _article.name
-                                        });
+                                        cart[seller.sellerId].articles.push(new Article(
+                                            input_article.value,
+                                            input_qty.value,
+                                            seller.price,
+                                            _article.name
+                                        ));
                                     }
 
                                     localStorage.setItem("cart_" + sessionStorage.getItem("username"), JSON.stringify(cart));
@@ -644,7 +644,7 @@
                     for (let seller in _cart) {
                         if (Object.prototype.hasOwnProperty.call(_cart, seller)) {
 
-                            let div1, div2, b1, b2, div3, b3, item_data, item, order_form;
+                            let div1, div2, b1, b2, div3, b3, div4, b4, item_data, item, order_form;
 
                             item = document.createElement("div");
                             item.className = "item item-blue";
@@ -663,6 +663,13 @@
                                 div1.appendChild(b1);
                                 div1.appendChild(document.createTextNode(art.name));
                                 item_data.appendChild(div1);
+
+                                b4 = document.createElement("b");
+                                b4.textContent = "Code: ";
+                                div4 = document.createElement("div");
+                                div4.appendChild(b4);
+                                div4.appendChild(document.createTextNode(art.id));
+                                item_data.appendChild(div4);
 
                                 b2 = document.createElement("b");
                                 b2.textContent = "Price: ";
@@ -793,6 +800,13 @@
                             div1.appendChild(document.createTextNode(article.name));
                             item_data.appendChild(div1);
 
+                            let b2 = document.createElement("b");
+                            b2.textContent = "Code: ";
+                            let div2 = document.createElement("div");
+                            div2.appendChild(b2);
+                            div2.appendChild(document.createTextNode(article.id));
+                            item_data.appendChild(div2);
+
                             let b3 = document.createElement("b");
                             b3.textContent = "Qty: ";
                             let div3 = document.createElement("div");
@@ -820,4 +834,10 @@
         hoverOverMe.onmouseout = popup.close;
     }
 
+    function Article(_id, _qty, _price, _name) {
+        this.id = _id;
+        this.quantity = _qty;
+        this.price = _price;
+        this.name = _name;
+    }
 })();
