@@ -446,7 +446,7 @@
                             if (shipping_policy.maxItem !== null && shipping_policy.maxItem !== undefined) {
                                 span_item.textContent = "For order with articles between " + shipping_policy.minItem + " and " + shipping_policy.maxItem + " the shipping cost is " + shipping_policy.shipCost;
                             } else {
-                                span_item.textContent = "For more than " + shipping_policy.minItem + " articles the shipping is free";
+                                span_item.textContent = "For " + shipping_policy.minItem + " articles or more the shipping is free";
                             }
                             ship_item.appendChild(span_item);
                             ship_item.appendChild(document.createElement("hr"));
