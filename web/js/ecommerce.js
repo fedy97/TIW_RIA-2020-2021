@@ -786,7 +786,21 @@
                                 });
                             });
 
+                            let cancel_button = document.createElement("input");
+                            cancel_button.className = "btn btn-large btn-inverted-blue btn-primary";
+                            cancel_button.type = "button";
+                            cancel_button.value = "Delete";
+                            cancel_button.addEventListener("click", (e) => {
+                                let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
+                                let map = JSON.parse(cart);
+                                delete map[seller];
+                                localStorage.setItem("cart_" + sessionStorage.getItem("username"), JSON.stringify(map));
+                                cartComponent.show();
+                            });
+
                             order_form.appendChild(input_button);
+                            order_form.appendChild(document.createTextNode(" "));
+                            order_form.appendChild(cancel_button);
                             item.appendChild(order_form);
 
                             self.sellers_div.appendChild(item);

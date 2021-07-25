@@ -63,11 +63,7 @@ form {
     background-color: #fff;
     border-color: #232f3e;
     border-width: 2px;
-}
-
-.btn-inverted-blue:hover {
-    color: #fff;
-    background-color: #232f3e;
+    cursor: pointer;
 }
 
 
