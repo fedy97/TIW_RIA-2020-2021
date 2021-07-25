@@ -10,7 +10,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +23,11 @@ import it.polimi.tiw.utils.GenericServlet;
 @WebServlet("/search")
 public class SearchController extends GenericServlet {
 
-    private static final Logger log                  = LoggerFactory.getLogger(SearchController.class.getSimpleName());
+    private static final Logger log              = LoggerFactory.getLogger(SearchController.class.getSimpleName());
 
-    private static final String HINT_ATTRIBUTE       = "hint";
+    private static final String HINT_ATTRIBUTE   = "hint";
 
-    private static final long   serialVersionUID     = 1L;
+    private static final long   serialVersionUID = 1L;
 
     public SearchController() {
 
@@ -46,9 +46,11 @@ public class SearchController extends GenericServlet {
         String keyword;
         try {
             keyword = escapeSQL(req.getParameter(HINT_ATTRIBUTE));
+
+            if (StringUtils.isBlank(keyword)) throw new Exception("Missing search keyword");
         } catch (Exception e) {
             log.error("Something went wrong when extracting search hint parameters. Cause is {}", e.getMessage());
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed parameters");
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Malformed or missing parameters");
             return;
         }
 

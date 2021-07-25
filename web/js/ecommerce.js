@@ -258,7 +258,8 @@
                             let articles = JSON.parse(resp.responseText);
                             self.update(articles, null);
                             break;
-                        case 400: // bad request
+                        case 400:  self.update(null, "Malformed request");
+                            break;
                         case 401: // unauthorized
                         case 500: // server error
                             self.update(null, resp.responseText);
