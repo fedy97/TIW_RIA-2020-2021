@@ -1,8 +1,9 @@
-body.loading .loading-div{
+body.loading .loading-div {
     display: flex;
     flex-direction: row;
 }
-.loading-div{
+
+.loading-div {
     display: none;
     position: fixed;
     bottom: 0;
@@ -13,10 +14,12 @@ body.loading .loading-div{
     text-align: center;
     z-index: 9999;
 }
-.loading-img{
+
+.loading-img {
     max-height: 22px;
 }
-.loading-message{
+
+.loading-message {
     color: #FFF;
     font-size: 15px;
     min-height: 15px;
