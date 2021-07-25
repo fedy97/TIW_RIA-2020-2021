@@ -438,6 +438,11 @@
                         item.appendChild(item_data);
                         item.appendChild(document.createElement("br"));
 
+                        let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
+                        if (cart === null) cart = {};
+                        else
+                            cart = JSON.parse(cart);
+
                         seller.shippingPolicies.forEach((shipping_policy) => {
                             let ship_item = document.createElement("div");
                             let span_item = document.createElement("span");
@@ -459,10 +464,7 @@
                         seller_items = document.createElement("div");
                         seller_items.id = "seller_cart" + seller.sellerId + _article.id;
                         seller_items.style = "text-decoration: underline";
-                        let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
-                        if (cart === null) cart = {};
-                        else
-                            cart = JSON.parse(cart);
+
                         let message;
                         if (cart[seller.sellerId] === null || cart[seller.sellerId] === undefined)
                             message = "You do not have articles of this seller in your cart yet";
@@ -524,6 +526,7 @@
                                                     seller.price,
                                                     _article.name
                                                 ));
+                                                this.addPolices(seller, cart);
                                             }
                                         } else {
                                             console.log("empty seller");
@@ -537,6 +540,7 @@
                                                 seller.price,
                                                 _article.name
                                             ));
+                                            this.addPolices(seller, cart);
                                         }
                                     } else {
                                         console.log("empty cart");
@@ -551,6 +555,7 @@
                                             seller.price,
                                             _article.name
                                         ));
+                                        this.addPolices(seller, cart);
                                     }
 
                                     localStorage.setItem("cart_" + sessionStorage.getItem("username"), JSON.stringify(cart));
@@ -574,6 +579,17 @@
             this.hide = function () {
                 self.article_div.style.display = "none";
                 self.article_div.innerHTML = "";
+            }
+
+            this.addPolices = function (seller, cart) {
+                cart[seller.sellerId].polices = [];
+                seller.shippingPolicies.forEach((policy) => {
+                    cart[seller.sellerId].polices.push({
+                        "maxItem": policy.maxItem,
+                        "minItem": policy.minItem,
+                        "shipCost": policy.shipCost
+                    });
+                });
             }
         }
     }
@@ -604,23 +620,39 @@
                         articles_price += parseFloat(entry.price) * parseFloat(entry.quantity);
                         cart[seller].articles_price = toCurrencyFormat(articles_price);
                     });
+                    cart[seller].shipping_price = this.getShippingCost(seller, cart, articles);
+                    console.log(cart[seller].shipping_price);
+                    //cart[seller].shipping_price = cart[seller].articles_price < cart[seller].price_threshold ? toCurrencyFormat(shipping_price) : toCurrencyFormat("0");
                     //get article price from BE
-                    makeCall("GET", "shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
-                        if (resp.status === 200) {
-                            shipping_price = JSON.parse(resp.responseText).shipCost;
-                            cart[seller].shipping_price = cart[seller].articles_price < cart[seller].price_threshold ? toCurrencyFormat(shipping_price) : toCurrencyFormat("0");
-                        } else {
-                            self.update(null, "Request reported status " + resp.status);
-                        }
-                    });//get details
+                    //makeCall("GET", "shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
+                    //    if (resp.status === 200) {
+                    //        shipping_price = JSON.parse(resp.responseText).shipCost;
+                    //        cart[seller].shipping_price = cart[seller].articles_price < cart[seller].price_threshold ? toCurrencyFormat(shipping_price) : toCurrencyFormat("0");
+                    //    } else {
+                    //        self.update(null, "Request reported status " + resp.status);
+                    //    }
+                    //});//get details
                 }
             }
-            setTimeout(() => {
-                self.update(cart);
-            }, 500);
+            //setTimeout(() => {
+            self.update(cart);
+            //}, 500);
 
 
         };
+
+        this.getShippingCost = function (seller, cart, qty) {
+            if (cart[seller].articles_price >= cart[seller].price_threshold) {
+                return toCurrencyFormat("0");
+            }
+            let res = "9999";
+            cart[seller].polices.forEach((policy) => {
+                if ((qty >= parseInt(policy.minItem) && policy.maxItem === undefined) || (qty >= parseInt(policy.minItem) && qty <= parseInt(policy.maxItem))) {
+                    res = toCurrencyFormat(policy.shipCost);
+                }
+            });
+            return res;
+        }
 
         this.update = function (_cart, _error) {
 
