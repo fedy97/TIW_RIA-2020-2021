@@ -230,7 +230,6 @@
                         self.order_table.appendChild(table);
                         self.order_table.appendChild(document.createElement("br"));
                         self.order_table.appendChild(document.createElement("br"));
-                        //popupWindow(th1.id, table);
                     });
                     self.order_table.style.display = "block";
                 }
@@ -506,7 +505,6 @@
 
                         input_button.addEventListener("click", (e) => {
                                 let cart, seller_entry, article_entry;
-                                //let input_seller = add_form.querySelector("input[name='seller_id']");
                                 let input_article = document.getElementById("article" + _article.id + seller.sellerId);
                                 let input_qty = document.getElementById("qty" + _article.id + seller.sellerId);
                                 if (add_form.checkValidity()) {
@@ -566,7 +564,7 @@
                         item.appendChild(add_form);
                         self.article_div.appendChild(item);
                         if (cart[seller.sellerId] !== undefined && cart[seller.sellerId].articles !== undefined && cart[seller.sellerId].articles !== 0)
-                        popupWindow("seller_cart" + seller.sellerId + _article.id, seller_items, seller.sellerId);
+                            popupWindow("seller_cart" + seller.sellerId + _article.id, seller_items, seller.sellerId);
                     });
                     self.article_div.style.display = "block";
 
@@ -611,7 +609,7 @@
                     makeCall("GET", "shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
                         if (resp.status === 200) {
                             shipping_price = JSON.parse(resp.responseText).shipCost;
-                            cart[seller].shipping_price = articles_price < cart[seller].price_threshold ? toCurrencyFormat(shipping_price) : toCurrencyFormat("0");
+                            cart[seller].shipping_price = cart[seller].articles_price < cart[seller].price_threshold ? toCurrencyFormat(shipping_price) : toCurrencyFormat("0");
                         } else {
                             self.update(null, "Request reported status " + resp.status);
                         }
