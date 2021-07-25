@@ -589,7 +589,6 @@
         this.show = function () {
             //Request and update with the results
             let shipping_price = 0;
-            let articles_price = 0.0;
             let cart = localStorage.getItem("cart_" + sessionStorage.getItem("username"));
             if (cart === null || cart === undefined)
                 cart = {};
@@ -597,6 +596,7 @@
                 cart = JSON.parse(cart);
 
             for (let seller in cart) {
+                let articles_price = 0.0;
                 if (Object.prototype.hasOwnProperty.call(cart, seller)) {
                     let articles = 0;
                     cart[seller].articles.forEach(entry => {
@@ -604,7 +604,6 @@
                         articles_price += parseFloat(entry.price) * parseFloat(entry.quantity);
                         cart[seller].articles_price = toCurrencyFormat(articles_price);
                     });
-                    articles_price = 0.0;
                     //get article price from BE
                     makeCall("GET", "shipping?seller_id=" + seller + "&qty=" + articles, null, (resp) => {
                         if (resp.status === 200) {
