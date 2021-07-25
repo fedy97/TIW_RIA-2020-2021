@@ -559,10 +559,12 @@
                                     }
 
                                     localStorage.setItem("cart_" + sessionStorage.getItem("username"), JSON.stringify(cart));
+                                    menu.cart.dispatchEvent(new Event("click"));
+                                }else{
+                                    add_form.reportValidity();
                                 }
-                                menu.cart.dispatchEvent(new Event("click"));
                             }
-                            //simulate click on cart
+
                         );
 
                         add_form.appendChild(input_button);

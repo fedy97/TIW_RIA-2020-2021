@@ -56,7 +56,7 @@ public class ArticleDAO {
         return queryExecutor.select(query, new HashMap<>(), ArticleBean.class);
     }
 
-    public Float getArticlePrice(String sellerId, String articleId) throws SQLException {
+    public Float getArticlePrice(String sellerId, String articleId) throws Exception {
 
         String query = "SELECT * FROM article INNER JOIN seller_article ON (id = article_id) WHERE article_id=:article_id AND seller_id=:seller_id";
         Map<String, Object> queryParam = new HashMap<>();
@@ -65,7 +65,7 @@ public class ArticleDAO {
         List<ArticleBean> articles = queryExecutor.select(query, queryParam, ArticleBean.class);
         if (articles.size() == 1) return Float.parseFloat(articles.get(0).getPrice());
         else
-            return 0F;
+            throw new Exception("Invalid entries");
     }
 
 }

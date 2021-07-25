@@ -9,12 +9,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import it.polimi.tiw.dao.ArticleDAO;
 import it.polimi.tiw.dao.OrderDAO;
 import it.polimi.tiw.dao.SellerDAO;
 import it.polimi.tiw.dao.ShipmentPolicyDAO;
+import it.polimi.tiw.utils.Exception400;
 import it.polimi.tiw.utils.GenericServlet;
 
 @WebServlet("/order")
@@ -41,24 +43,16 @@ public class OrderController extends GenericServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-        // get and check params
-        String orderId = null;
-
         Optional<UserBean> user = getUserData(req);
         if (!user.isPresent()) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-
         String userId = user.get().getId();
 
-        try {
-            orderId = escapeSQL(req.getParameter("order-id"));
-        } catch (NumberFormatException | NullPointerException e) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
-            return;
-        }
+        String orderId = escapeSQL(req.getParameter("order-id"));
+
         try {
             if (orderId != null) {
                 // get order by id
@@ -87,8 +81,7 @@ public class OrderController extends GenericServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws  IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         Optional<UserBean> user = getUserData(request);
         if (!user.isPresent()) {
@@ -98,20 +91,10 @@ public class OrderController extends GenericServlet {
 
         String userId = user.get().getId();
 
-        // Get and parse all parameters from request
-        boolean isBadRequest = false;
-        String sellerId = null;
-        String articles = null;
-        try {
-            sellerId = request.getParameter("seller_id");
-            articles = request.getParameter("articles");
-            //articles = "[{'quantity': '2', 'id': '1'},{'quantity': '3', 'id': '2'}]";
+        String sellerId = request.getParameter("seller_id");
+        String articles = request.getParameter("articles");
 
-        } catch (NumberFormatException | NullPointerException e) {
-            isBadRequest = true;
-            e.printStackTrace();
-        }
-        if (isBadRequest) {
+        if (StringUtils.isBlank(sellerId) || StringUtils.isBlank(articles)) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect or missing param values");
             return;
         }
@@ -120,14 +103,28 @@ public class OrderController extends GenericServlet {
         try {
             addArticlesToOrder(orderBean, articles);
             orderBean.setUserId(userId);
+
+            if (!isValidSeller(sellerId)) throw new Exception400("Invalid sellerid");
+
             orderBean.setSellerId(sellerId);
             orderBean.setOrderDate(new Date().toString());
             orderBean.setShipmentDate(new Date().toString());
             orderBean.setPriceArticles(computePriceArticles(sellerId, orderBean.getArticleBeans()));
-            orderBean.setPriceShipment(Float.toString(extractShipmentPrice(sellerId, computeTotalArticles(orderBean.getArticleBeans()).toString(), orderBean.getPriceArticles())));
+            orderBean.setPriceShipment(Float.toString(extractShipmentPrice(sellerId,
+                    computeTotalArticles(orderBean.getArticleBeans()).toString(), orderBean.getPriceArticles())));
             orderDAO.createOrder(orderBean);
         } catch (SQLException sqlException) {
+            log.error(ExceptionUtils.getStackTrace(sqlException));
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Not possible to create order");
+            return;
+        } catch (Exception400 e) {
+            log.error(ExceptionUtils.getStackTrace(e));
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid input parameters");
+            return;
+        } catch (Exception e) {
+            log.error(ExceptionUtils.getStackTrace(e));
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error");
+            return;
         }
 
         writeObject(orderBean, response, HttpServletResponse.SC_OK);
@@ -139,6 +136,12 @@ public class OrderController extends GenericServlet {
         return orderDAO.findOrderById(id);
     }
 
+    private boolean isValidSeller(String sellerId) throws SQLException {
+
+        SellerDAO sellerDAO = new SellerDAO(connection);
+        return sellerDAO.getSellerFromId(sellerId).isPresent();
+    }
+
     private List<OrderBean> getOrders(String userId) throws SQLException {
 
         OrderDAO orderDAO = new OrderDAO(connection);
@@ -146,29 +149,28 @@ public class OrderController extends GenericServlet {
     }
 
     private void addArticlesToOrder(OrderBean orderBean, String articles) {
+
         Gson gson = new Gson();
         List<ArticleBean> articleBeans = Arrays.asList(gson.fromJson(articles, ArticleBean[].class));
         orderBean.setArticleBeans(articleBeans);
     }
 
-    protected String computePriceArticles(String sellerId, List<ArticleBean> articleBeanList) {
+    protected String computePriceArticles(String sellerId, List<ArticleBean> articleBeanList) throws Exception {
 
         float total = 0F;
-        for (ArticleBean articleBean : articleBeanList)
+        for (ArticleBean articleBean : articleBeanList) {
             total += Float.parseFloat(articleBean.getQuantity()) * extractArticlePrice(articleBean.getId(), sellerId);
+            if (Float.parseFloat(articleBean.getQuantity()) < 1) throw new Exception400("Invalid article quantity");
+        }
 
         return Float.toString(total);
     }
 
-    private Float extractArticlePrice(String articleId, String sellerId) {
+    private Float extractArticlePrice(String articleId, String sellerId) throws Exception {
 
         ArticleDAO articleDAO = new ArticleDAO(connection);
-        try {
-            return articleDAO.getArticlePrice(sellerId, articleId);
-        } catch (SQLException e) {
-            log.error("Something went wrong when extracting price for article {} of seller {}", articleId, sellerId);
-        }
-        return 0F;
+
+        return articleDAO.getArticlePrice(sellerId, articleId);
     }
 
     protected Integer computeTotalArticles(List<ArticleBean> articleBeanList) {
