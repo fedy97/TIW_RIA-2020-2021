@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import it.polimi.tiw.bean.ArticleBean;
+import it.polimi.tiw.utils.Exception400;
 import it.polimi.tiw.utils.QueryExecutor;
 
 public class ArticleDAO {
@@ -56,7 +57,7 @@ public class ArticleDAO {
         return queryExecutor.select(query, new HashMap<>(), ArticleBean.class);
     }
 
-    public Float getArticlePrice(String sellerId, String articleId) throws Exception {
+    public Float getArticlePrice(String sellerId, String articleId) throws Exception400, SQLException {
 
         String query = "SELECT * FROM article INNER JOIN seller_article ON (id = article_id) WHERE article_id=:article_id AND seller_id=:seller_id";
         Map<String, Object> queryParam = new HashMap<>();
@@ -65,7 +66,7 @@ public class ArticleDAO {
         List<ArticleBean> articles = queryExecutor.select(query, queryParam, ArticleBean.class);
         if (articles.size() == 1) return Float.parseFloat(articles.get(0).getPrice());
         else
-            throw new Exception("Invalid entries");
+            throw new Exception400("Invalid entries");
     }
 
 }

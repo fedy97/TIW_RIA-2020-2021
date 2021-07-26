@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -155,13 +154,16 @@ public class OrderController extends GenericServlet {
         orderBean.setArticleBeans(articleBeans);
     }
 
-    protected String computePriceArticles(String sellerId, List<ArticleBean> articleBeanList) throws Exception {
+    protected String computePriceArticles(String sellerId, List<ArticleBean> articleBeanList)
+            throws Exception400, SQLException {
 
         float total = 0F;
         for (ArticleBean articleBean : articleBeanList) {
             try {
-                total += Float.parseFloat(articleBean.getQuantity()) * extractArticlePrice(articleBean.getId(), sellerId);
-                if (Float.parseFloat(articleBean.getQuantity()) < 1) throw new Exception400("Invalid article quantity, you have to insert a positive quantity");
+                total += Float.parseFloat(articleBean.getQuantity())
+                        * extractArticlePrice(articleBean.getId(), sellerId);
+                if (Float.parseFloat(articleBean.getQuantity()) < 1)
+                    throw new Exception400("Invalid article quantity, you have to insert a positive quantity");
             } catch (NumberFormatException e) {
                 throw new Exception400("Invalid article quantity, you have to insert a number");
             }
@@ -170,18 +172,25 @@ public class OrderController extends GenericServlet {
         return Float.toString(total);
     }
 
-    private Float extractArticlePrice(String articleId, String sellerId) throws Exception {
+    private Float extractArticlePrice(String articleId, String sellerId) throws Exception400, SQLException {
 
         ArticleDAO articleDAO = new ArticleDAO(connection);
 
         return articleDAO.getArticlePrice(sellerId, articleId);
     }
 
-    protected Integer computeTotalArticles(List<ArticleBean> articleBeanList) {
+    protected Integer computeTotalArticles(List<ArticleBean> articleBeanList) throws Exception400 {
 
-        AtomicInteger counter = new AtomicInteger();
-        articleBeanList.forEach(articleBean -> counter.getAndAdd(Integer.parseInt(articleBean.getQuantity())));
-        return counter.get();
+        int counter = 0;
+        for (ArticleBean articleBean : articleBeanList) {
+            try {
+                counter += Integer.parseInt(articleBean.getQuantity());
+            } catch (NumberFormatException e) {
+                throw new Exception400("Invalid qty");
+            }
+        }
+
+        return counter;
     }
 
     protected Float extractShipmentPrice(String sellerId, String articleQty, String priceArticles) {

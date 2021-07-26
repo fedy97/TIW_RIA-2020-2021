@@ -260,7 +260,6 @@
                             break;
                         case 400:  self.update(null, "Malformed request");
                             break;
-                        case 401: // unauthorized
                         case 500: // server error
                             self.update(null, resp.responseText);
                             break;
@@ -510,7 +509,7 @@
                                 let cart, seller_entry, article_entry;
                                 let input_article = document.getElementById("article" + _article.id + seller.sellerId);
                                 let input_qty = document.getElementById("qty" + _article.id + seller.sellerId);
-                                if (add_form.checkValidity()) {
+                                if (add_form.checkValidity() && parseInt(input_qty.value) >= 1) {
                                     cart = JSON.parse(localStorage.getItem("cart_" + sessionStorage.getItem("username")));
                                     if (cart !== null && cart !== undefined && cart.length !== 0) {
                                         seller_entry = cart[seller.sellerId];
