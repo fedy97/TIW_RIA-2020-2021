@@ -370,7 +370,8 @@
                             let article = JSON.parse(resp.responseText);
                             self.update(article, null);
                             break;
-                        case 400: // bad request
+                        case 404: self.update(null, "Article not found");
+                            break;
                         case 401: // unauthorized
                         case 500: // server error
                             self.update(null, resp.responseText);
