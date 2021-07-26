@@ -159,8 +159,12 @@ public class OrderController extends GenericServlet {
 
         float total = 0F;
         for (ArticleBean articleBean : articleBeanList) {
-            total += Float.parseFloat(articleBean.getQuantity()) * extractArticlePrice(articleBean.getId(), sellerId);
-            if (Float.parseFloat(articleBean.getQuantity()) < 1) throw new Exception400("Invalid article quantity");
+            try {
+                total += Float.parseFloat(articleBean.getQuantity()) * extractArticlePrice(articleBean.getId(), sellerId);
+                if (Float.parseFloat(articleBean.getQuantity()) < 1) throw new Exception400("Invalid article quantity, you have to insert a positive quantity");
+            } catch (NumberFormatException e) {
+                throw new Exception400("Invalid article quantity, you have to insert a number");
+            }
         }
 
         return Float.toString(total);

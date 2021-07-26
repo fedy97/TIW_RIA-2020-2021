@@ -662,8 +662,11 @@
             self.sellers_div.innerHTML = "";
 
             if (_error) {
-                self.cart_div.textContent = _error;
+                self.cart_title.textContent = _error;
                 self.cart_div.style.display = "block";
+                localStorage.setItem("cart_" + sessionStorage.getItem("username"), JSON.stringify({}));
+                let cart = JSON.parse(localStorage.getItem("cart_" + sessionStorage.getItem("username")));
+                self.update(cart);
             } else {
                 let item_title;
 
