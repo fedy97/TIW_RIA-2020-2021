@@ -1,5 +1,5 @@
 
-let loadingModal = new LoadingModal(document.getElementById("loading_msg"));
+//let loadingModal = new LoadingModal(document.getElementById("loading_msg"));
 
 function LoadingModal(loading_msg) {
     this.loading_msg = loading_msg;
@@ -26,29 +26,29 @@ function makeCall(method, relativeUrl, form, done_callback, reset = true) {
     req.onreadystatechange = function () {
         switch (req.readyState) {
             case XMLHttpRequest.UNSENT:
-                loadingModal.update("Connecting to Server ...");
+                //loadingModal.update("Connecting to Server ...");
                 break;
             case XMLHttpRequest.OPENED:
-                loadingModal.update("Connected to Server ...");
+                //loadingModal.update("Connected to Server ...");
                 break;
             case XMLHttpRequest.HEADERS_RECEIVED:
             case XMLHttpRequest.LOADING:
-                loadingModal.update("Waiting for response ...");
+                //loadingModal.update("Waiting for response ...");
                 break;
             case XMLHttpRequest.DONE:
-                loadingModal.update("Request completed");
+                //loadingModal.update("Request completed");
                 if (req.status === 401 && !window.location.href.endsWith("login.html")) //Unauthorized
                     window.location.href = "login.html";
                 done_callback(req);
 
                 setTimeout(function () {
-                    loadingModal.hide();
+                    //loadingModal.hide();
                 }, 500);
                 break;
         }
     };
 
-    loadingModal.show(); //Start loading
+    //loadingModal.show(); //Start loading
     //Open request
     req.open(method, relativeUrl, true);
     //Send request
