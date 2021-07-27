@@ -1,24 +1,24 @@
 
 //let loadingModal = new LoadingModal(document.getElementById("loading_msg"));
 
-function LoadingModal(loading_msg) {
-    this.loading_msg = loading_msg;
-    this.show = function (message) {
-        this.update(message);
-        if (!document.body.className.includes("loading"))
-            document.body.className += " loading";
-    };
-    this.update = function (message) {
-        if (message) //If a message is supplied to method
-            this.loading_msg.textContent = message;
-        else
-            this.loading_msg.textContent = "Communicating with Server ...";
-
-    };
-    this.hide = function () {
-        document.body.className = document.body.className.replace(" loading", "");
-    };
-}
+// function LoadingModal(loading_msg) {
+//     this.loading_msg = loading_msg;
+//     this.show = function (message) {
+//         this.update(message);
+//         if (!document.body.className.includes("loading"))
+//             document.body.className += " loading";
+//     };
+//     this.update = function (message) {
+//         if (message) //If a message is supplied to method
+//             this.loading_msg.textContent = message;
+//         else
+//             this.loading_msg.textContent = "Communicating with Server ...";
+//
+//     };
+//     this.hide = function () {
+//         document.body.className = document.body.className.replace(" loading", "");
+//     };
+// }
 
 function makeCall(method, relativeUrl, form, done_callback, reset = true) {
     let req = new XMLHttpRequest(); //Create new request
@@ -41,9 +41,6 @@ function makeCall(method, relativeUrl, form, done_callback, reset = true) {
                     window.location.href = "login.html";
                 done_callback(req);
 
-                setTimeout(function () {
-                    //loadingModal.hide();
-                }, 500);
                 break;
         }
     };
